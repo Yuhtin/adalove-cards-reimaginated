@@ -1,4 +1,6 @@
-# AdaLove Cards Reimaginated
+<img src="/documentos/assets/adalove2.png" height=100 width=100 />
+
+# AdaLove Reimaginated
 
 Este projeto é uma aplicação web para gerenciamento de cards de atividades do AdaLove, desenvolvido utilizando Node.js com Express.js como framework e PostgreSQL como banco de dados relacional, seguindo o padrão MVC (Model-View-Controller).
 
