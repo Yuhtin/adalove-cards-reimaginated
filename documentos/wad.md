@@ -14,9 +14,7 @@
 4. [Desenvolvimento da Aplicação Web](#c4)  
 5. [Referências](#c5)  
 
-<br>
-
-## <a name="c1"></a>1. Introdução (Semana 01)
+## <a name="c1"></a>1. Introdução
 
 Este projeto é uma aplicação web para gerenciamento de cards de atividades do AdaLove, desenvolvido utilizando Node.js com Express.js como framework e PostgreSQL como banco de dados relacional, seguindo o padrão MVC (Model-View-Controller).
 
@@ -65,7 +63,7 @@ O diagrama abaixo apresenta a estrutura completa do banco de dados com todas as 
 
 Deixei também o modelo do banco de dados no formato **DBML** disponível no arquivo [database-structure.dbml](/documentos/assets/database-structure.dbml)
 
-#### Resumo da Estrutura
+##### Resumo da Estrutura
 
 - **Users**: Armazena logins e informações dos usuários
 - **Cards**: Armazena os cartões de atividades da adalove
@@ -74,7 +72,7 @@ Deixei também o modelo do banco de dados no formato **DBML** disponível no arq
 - **Activity Types**: Tipos de atividades (Auto Estudo / Avaliação e Pesquisa / Desenvolvimento de Projetos / Outros)
 - **Status Types**: Status possíveis para os cartões (A Fazer / Fazendo / Feito)
 
-#### Relações
+##### Relações
 
 - Um usuário pode ter vários cartões
 - Um instrutor pode ter vários cartões
