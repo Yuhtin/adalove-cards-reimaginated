@@ -1,0 +1,50 @@
+Table users {
+  id uuid pk
+  username varchar(16) [not null]
+  password longtext [not null, unique]
+  iconUrl longtext [null]
+}
+
+Table cards {
+  id uuid pk
+  userId uuid [not null]
+  name varchar(100) [unique, not null]
+  instructorId uuid [not null]
+  activityTypeId uuid [not null]
+  description longtext [null, default: 'This is a default description']
+  mandatory boolean [default: false]
+  relatedLinks longtext [null]
+  weekNumber int(2) [default: 1]
+  weightValue int(2) [default: -1]
+  statusTypeId uuid [not null, default: 1]
+  date date [not null, default: `now() + 1 week`]
+}
+
+Table instructors {
+  id uuid pk
+  name varchar(100) [not null]
+  instructionAreaId uuid [not null]
+}
+
+Table instruction_areas {
+  id uuid pk
+  name varchar(100) [unique, not null]
+}
+
+Table activity_types {
+  id uuid pk
+  name varchar(30) [not null, unique]
+  iconUrl longtext [not null]
+}
+
+Table status_types {
+  id integer [increment, pk]
+  name varchar(20) [not null]
+  iconUrl text [not null]
+}
+
+Ref user_cards: cards.userId > users.id
+Ref instructors_cards: cards.instructorId > instructors.id
+Ref activitytype_cards: cards.activityTypeId > activity_types.id
+Ref statustype_cards: cards.statusTypeId > status_types.id
+Ref instructors_areas: instruction_areas.id > instructors.instructionAreaId
