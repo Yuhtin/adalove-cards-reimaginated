@@ -91,7 +91,7 @@ O banco de dados utiliza o PostgreSQL e possui as seguintes entidades principais
 * **Status Types**: Status possíveis para os cartões
 
 Para **mais informações** sobre a **modelagem do banco de dados**, consulte o arquivo **WAD**.
-[Clique aqui para ir até o arquivo](https://github.com/Yuhtin/adalove-cards-reimaginated/blob/main/documentos/wad.md#35-modelagem-do-banco-de-dados-sprints-2-e-4)
+[Clique aqui para ir até o arquivo](https://github.com/Yuhtin/adalove-cards-reimaginated/blob/main/documentos/wad.md#3-projeto-da-aplica%C3%A7%C3%A3o-web)
 
 Licença
 -------
