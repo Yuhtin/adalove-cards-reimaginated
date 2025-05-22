@@ -14,17 +14,6 @@ CREATE TABLE users (
   iconUrl TEXT NULL
 );
 
-CREATE TABLE instruction_areas (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name VARCHAR(100) NOT NULL UNIQUE
-);
-
-CREATE TABLE instructors (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name VARCHAR(100) NOT NULL,
-  instructionAreaId UUID NOT NULL REFERENCES instruction_areas(id)
-);
-
 CREATE TABLE activity_types (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name VARCHAR(30) NOT NULL UNIQUE,
@@ -41,7 +30,7 @@ CREATE TABLE cards (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   userId UUID NOT NULL REFERENCES users(id),
   name VARCHAR(100) NOT NULL UNIQUE,
-  instructorId UUID NOT NULL REFERENCES instructors(id),
+  instructorName VARCHAR(100) NOT NULL,
   activityTypeId UUID NOT NULL REFERENCES activity_types(id),
   description TEXT NULL DEFAULT 'This is a default description',
   mandatory BOOLEAN DEFAULT false,
