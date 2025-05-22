@@ -8,4 +8,7 @@ router.post('/', userController.createUser);
 router.put('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
 
+router.get('/:id/cards', userController.getUserWithCards);
+router.patch('/:id/icon', userController.updateUserIcon);
+
 module.exports = router;

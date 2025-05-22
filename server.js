@@ -16,6 +16,12 @@ db.connect()
     const userRoutes = require('./routes/userRoutes');
     app.use('/users', userRoutes);
 
+    const authRoutes = require('./routes/authRoutes');
+    const cardRoutes = require('./routes/cardRoutes');
+
+    app.use('/auth', authRoutes);
+    app.use('/cards', cardRoutes);
+
     const frontendRoutes = require('./routes/frontRoutes');
     app.use('/', frontendRoutes);
 
