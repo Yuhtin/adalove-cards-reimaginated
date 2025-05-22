@@ -77,18 +77,124 @@ Deixei também o modelo do banco de dados no formato **DBML** disponível no arq
 - Cada cartão tem um status
 
 ### 3.1.1 BD e Models (Semana 5)
-*Descreva aqui os Models implementados no sistema web*
+A camada de Models em uma aplicação MVC (Model-View-Controller) é responsável por gerenciar os dados, a lógica e as regras de negócio da aplicação. Ela representa a estrutura de dados subjacente e fornece métodos para interagir com o banco de dados de forma organizada e eficiente. No sistema AdaLove Reimaginated, os models implementados servem como intermediários entre as operações do controlador e o banco de dados PostgreSQL.
 
-### 3.2. Arquitetura (Semana 5)
+Os models são fundamentais para garantir o encapsulamento da lógica de acesso a dados, fornecendo uma API limpa e consistente para o restante da aplicação. Além disso, eles permitem que alterações na estrutura do banco de dados sejam isoladas, minimizando o impacto em outras partes do código.
 
-*Posicione aqui o diagrama de arquitetura da sua solução de aplicação web. Atualize sempre que necessário.*
+#### Models Implementados
 
-**Instruções para criação do diagrama de arquitetura**  
-- **Model**: A camada que lida com a lógica de negócios e interage com o banco de dados.
-- **View**: A camada responsável pela interface de usuário.
-- **Controller**: A camada que recebe as requisições, processa as ações e atualiza o modelo e a visualização.
-  
-*Adicione as setas e explicações sobre como os dados fluem entre o Model, Controller e View.*
+##### User Model
+
+O `userModel.js` gerencia todas as operações relacionadas aos usuários da aplicação, incluindo:
+
+- **Operações CRUD básicas**: Métodos para criar, ler, atualizar e excluir registros de usuários
+- **Autenticação**: Verificação de credenciais de login
+- **Relacionamentos**: Recuperação de usuários com seus respectivos cartões associados
+- **Gerenciamento de perfil**: Atualização de senha e ícone de perfil
+
+Este model encapsula tanto atributos simples (username, password) quanto relacionamentos mais complexos, como a ligação entre usuários e seus cartões de atividades.
+
+##### Card Model
+
+O `cardModel.js` é responsável pelo gerenciamento dos cartões de atividades, fornecendo:
+
+- **Operações CRUD**: Criação, leitura, atualização e exclusão de cards
+- **Filtragem avançada**: Busca de cards com múltiplos critérios (status, tipo, data)
+- **Importação de dados externos**: Conversão de dados da plataforma AdaLove oficial para o formato interno
+- **Estatísticas**: Agregação de informações sobre cartões (total, por status, obrigatórios)
+- **Relacionamentos**: Associação com usuários, tipos de atividades e status
+
+Este model implementa lógica complexa para classificação e manipulação de cartões, incluindo operações em lote para importação de dados externos.
+
+#### Funcionalidades Destacadas
+
+##### No User Model:
+
+- **getUserWithCards**: Recupera um usuário junto com todos os seus cartões associados em uma única consulta otimizada, incluindo informações relacionadas como instrutores e tipos de atividades.
+
+- **Gerenciamento de autenticação**: Métodos específicos para verificar credenciais e gerenciar senhas.
+
+##### No Card Model:
+
+- **importFromExternalSource**: Funcionalidade sofisticada que mapeia dados externos para o formato interno do sistema, criando automaticamente tipos de atividade quando necessário.
+- **getCardsByFilters**: Sistema flexível de filtragem que suporta múltiplos critérios e ordenação personalizada.
+- **getCardStats**: Agregação de estatísticas sobre cartões para análise rápida do progresso do usuário.
+
+Os models implementados seguem boas práticas de programação, como encapsulamento de lógica de negócios, separação de responsabilidades e consultas SQL parametrizadas para prevenir injeções SQL. Esta abordagem estruturada facilita a manutenção, extensão e teste do sistema, além de proporcionar uma base sólida para a expansão futura das funcionalidades.
+
+### 3.2. Arquitetura
+
+A arquitetura do sistema AdaLove Reimaginated segue o padrão MVC (Model-View-Controller), que promove a separação de responsabilidades em camadas distintas, tornando o código mais organizado, reutilizável e manutenível. Abaixo está o diagrama da arquitetura implementada, ilustrando como as diferentes partes do sistema interagem entre si e como os dados fluem através da aplicação.
+
+#### Diagrama de Arquitetura MVC
+
+<div align="center">
+  <sup>Figura 3 - Diagrama de Arquitetura MVC</sup>
+  <img src="/documentos/assets/diagram-mvc.png"/>
+  <sup>Fonte: Autoria própria, 2025</sup>
+</div>
+
+#### Explicação do Fluxo de Dados
+
+1. **Requisição do Cliente**
+
+- O fluxo inicia quando o cliente (navegador) faz uma solicitação HTTP para a aplicação.
+- Esta requisição é recebida pelo sistema de rotas do Express.js.
+
+2. **Middleware e Roteamento**
+
+- Antes de chegar ao controlador, a requisição passa pelo middleware de autenticação, que verifica se o usuário está autenticado e tem permissão para acessar o recurso solicitado.
+- O sistema de rotas direciona a requisição para o controlador adequado com base no URL e no método HTTP utilizado.
+
+3. **Controladores**
+
+- Os controladores recebem as requisições roteadas e são responsáveis por:
+- Extrair e validar dados da requisição
+- Coordenar a interação entre o Model e a View
+- Implementar a lógica de negócio específica da aplicação
+
+4. **Models**
+
+- Os Models encapsulam todas as operações relacionadas aos dados:
+  - Comunicação com o banco de dados PostgreSQL
+  - Implementação das regras de negócio associadas aos dados
+  - Validação de dados antes da persistência
+  - Transformação de dados entre o formato do banco e o formato da aplicação
+
+5. **Banco de Dados**
+
+- O PostgreSQL armazena todos os dados persistentes da aplicação
+- As tabelas principais incluem: Users, Cards, Activity Types e Status Types
+
+6. **Resposta ao Cliente**
+
+- Após processar a requisição e interagir com o modelo, o controlador:
+  - Para requisições de API: formata e envia respostas JSON
+  - Para requisições web: renderiza views HTML ou redireciona o usuário
+- A resposta é então enviada de volta ao cliente
+
+
+#### Componentes Principais
+
+##### Models
+
+- User Model: Gerencia operações relacionadas aos usuários
+- Card Model: Gerencia operações relacionadas aos cartões de atividades
+
+##### Controllers
+
+- Auth Controller: Gerencia autenticação e autorização
+- User Controller: Gerencia operações de usuário
+- Card Controller: Gerencia operações de cartões
+
+##### Views/API
+
+- Interface web para interações do usuário
+- API REST para comunicação com clientes front-end
+
+---
+
+Esta arquitetura proporciona uma separação clara de responsabilidades, facilitando o desenvolvimento, teste e manutenção do sistema. A estrutura modular também permite que cada componente evolua independentemente, desde que as interfaces entre eles permaneçam consistentes.
 
 ### 3.3. Wireframes (Semana 03 - opcional)
 
