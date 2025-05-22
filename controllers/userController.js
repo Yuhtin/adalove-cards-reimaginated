@@ -1,10 +1,8 @@
-// controllers/userController.js
-
-const userService = require('../services/userService');
+const User = require('../models/userModel');
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await userService.getAllUsers();
+    const users = await User.getAll();
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -13,11 +11,11 @@ const getAllUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await userService.getUserById(req.params.id);
+    const user = await User.getById(req.params.id);
     if (user) {
       res.status(200).json(user);
     } else {
-      res.status(404).json({ error: 'Usuário não encontrado' });
+      res.status(404).json({ error: 'User not found' });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -26,8 +24,9 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    const { name, email } = req.body;
-    const newUser = await userService.createUser(name, email);
+    const { username, password, iconUrl } = req.body;
+    const userData = { username, password, iconUrl };
+    const newUser = await User.create(userData);
     res.status(201).json(newUser);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -36,12 +35,19 @@ const createUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const { name, email } = req.body;
-    const updatedUser = await userService.updateUser(req.params.id, name, email);
+    const { username, password, iconUrl } = req.body;
+    const userData = {};
+    
+    if (username !== undefined) userData.username = username;
+    if (password !== undefined) userData.password = password;
+    if (iconUrl !== undefined) userData.iconUrl = iconUrl;
+    
+    const updatedUser = await User.update(req.params.id, userData);
+    
     if (updatedUser) {
       res.status(200).json(updatedUser);
     } else {
-      res.status(404).json({ error: 'Usuário não encontrado' });
+      res.status(404).json({ error: 'User not found' });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -50,11 +56,39 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    const deletedUser = await userService.deleteUser(req.params.id);
-    if (deletedUser) {
-      res.status(200).json(deletedUser);
+    const deleted = await User.delete(req.params.id);
+    if (deleted) {
+      res.status(200).json({ message: 'User deleted successfully' });
     } else {
-      res.status(404).json({ error: 'Usuário não encontrado' });
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getUserWithCards = async (req, res) => {
+  try {
+    const userWithCards = await User.getUserWithCards(req.params.id);
+    if (userWithCards) {
+      res.status(200).json(userWithCards);
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const updateUserIcon = async (req, res) => {
+  try {
+    const { iconUrl } = req.body;
+    const updatedUser = await User.updateIcon(req.params.id, iconUrl);
+    
+    if (updatedUser) {
+      res.status(200).json(updatedUser);
+    } else {
+      res.status(404).json({ error: 'User not found' });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -66,5 +100,7 @@ module.exports = {
   getUserById,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  getUserWithCards,
+  updateUserIcon
 };
