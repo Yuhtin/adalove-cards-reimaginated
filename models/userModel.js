@@ -2,34 +2,131 @@ const db = require('../config/db');
 
 class User {
   static async getAll() {
-    const result = await db.query('SELECT * FROM users');
+    const result = await db.query('SELECT id, username, iconUrl FROM users');
     return result.rows;
   }
 
   static async getById(id) {
-    const result = await db.query('SELECT * FROM users WHERE id = $1', [id]);
+    const result = await db.query('SELECT id, username, iconUrl FROM users WHERE id = $1', [id]);
+    return result.rows[0];
+  }
+
+  static async getByUsername(username) {
+    const result = await db.query('SELECT * FROM users WHERE username = $1', [username]);
     return result.rows[0];
   }
 
   static async create(data) {
     const result = await db.query(
-      'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
-      [data.name, data.email]
+      'INSERT INTO users (username, password, iconUrl) VALUES ($1, $2, $3) RETURNING id, username, iconUrl',
+      [data.username, data.password, data.iconUrl || null]
     );
     return result.rows[0];
   }
 
   static async update(id, data) {
-    const result = await db.query(
-      'UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING *',
-      [data.name, data.email, id]
-    );
+    let updateFields = [];
+    let params = [];
+    let paramCounter = 1;
+
+    if (data.username !== undefined) {
+      updateFields.push(`username = $${paramCounter++}`);
+      params.push(data.username);
+    }
+    
+    if (data.password !== undefined) {
+      updateFields.push(`password = $${paramCounter++}`);
+      params.push(data.password);
+    }
+    
+    if (data.iconUrl !== undefined) {
+      updateFields.push(`iconUrl = $${paramCounter++}`);
+      params.push(data.iconUrl);
+    }
+    
+    if (updateFields.length === 0) {
+      return null;
+    }
+    
+    params.push(id);
+    
+    const query = `
+      UPDATE users 
+      SET ${updateFields.join(', ')} 
+      WHERE id = $${paramCounter} 
+      RETURNING id, username, iconUrl
+    `;
+    
+    const result = await db.query(query, params);
     return result.rows[0];
   }
 
   static async delete(id) {
-    const result = await db.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
+    const result = await db.query('DELETE FROM users WHERE id = $1 RETURNING id', [id]);
     return result.rowCount > 0;
+  }
+
+  static async authenticate(username, password) {
+    const result = await db.query('SELECT * FROM users WHERE username = $1 AND password = $2', [username, password]);
+    if (result.rows.length === 0) {
+      return null;
+    }
+    
+    const user = result.rows[0];
+    delete user.password;
+    return user;
+  }
+
+  static async getUserWithCards(id) {
+    const userResult = await db.query('SELECT id, username, iconUrl FROM users WHERE id = $1', [id]);
+    
+    if (userResult.rows.length === 0) {
+      return null;
+    }
+    
+    const user = userResult.rows[0];
+    
+    const cardsResult = await db.query(`
+      SELECT c.*, 
+             i.name as instructorName,
+             at.name as activityTypeName,
+             at.iconUrl as activityTypeIconUrl,
+             st.name as statusName,
+             st.iconUrl as statusIconUrl
+      FROM cards c
+      JOIN instructors i ON c.instructorId = i.id
+      JOIN activity_types at ON c.activityTypeId = at.id
+      JOIN status_types st ON c.statusTypeId = st.id
+      WHERE c.userId = $1
+      ORDER BY c.date ASC
+    `, [id]);
+    
+    user.cards = cardsResult.rows;
+    
+    return user;
+  }
+  
+  static async changePassword(id, oldPassword, newPassword) {
+    const checkResult = await db.query('SELECT id FROM users WHERE id = $1 AND password = $2', [id, oldPassword]);
+    
+    if (checkResult.rows.length === 0) {
+      return false;
+    }
+    
+    const updateResult = await db.query(
+      'UPDATE users SET password = $1 WHERE id = $2 RETURNING id',
+      [newPassword, id]
+    );
+    
+    return updateResult.rowCount > 0;
+  }
+  
+  static async updateIcon(id, iconUrl) {
+    const result = await db.query(
+      'UPDATE users SET iconUrl = $1 WHERE id = $2 RETURNING id, username, iconUrl',
+      [iconUrl, id]
+    );
+    return result.rows[0];
   }
 }
 
