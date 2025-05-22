@@ -1,6 +1,6 @@
 <img src="/documentos/assets/adalove2.png" height=100 width=100 />
 
-# AdaLove Reimaginated
+# AdaLove 2
 
 Este projeto é uma aplicação web para gerenciamento de cards de atividades do AdaLove, desenvolvido utilizando Node.js com Express.js como framework e PostgreSQL como banco de dados relacional, seguindo o padrão MVC (Model-View-Controller).
 
@@ -50,44 +50,54 @@ Isso criará todas as tabelas necessárias no seu banco de dados PostgreSQL conf
 Funcionalidades
 ---------------
 
-* **Gerenciamento de Cartões:** Criação, visualização, edição e exclusão de cartões de atividades
-* **Organização por Categorias:** Classificação de atividades por tipo, status e área de instrução
-* **Perfil de Usuário:** Gerenciamento de informações pessoais e preferências
-* **Interface Intuitiva:** Design responsivo e amigável para melhor experiência do usuário
-* **Integração com IA:** Estipular tempo para fazer cada autoestudo e criar um planning para a semana, que permite o aluno personalizar o planejamento dado o estilo de estudo dele.
+- **Gerenciamento Simplificado de Atividades Acadêmicas**: Organize todas suas atividades do Inteli em um só lugar! Com nossa plataforma, você pode visualizar, criar e organizar seus cartões de atividades de forma intuitiva, sem precisar navegar por múltiplos sistemas.
+
+- **Sistema de Categorização Inteligente**: Encontre rapidamente o que precisa! Nosso sistema permite filtrar suas atividades por disciplina, data, professor ou tipo de atividade, ajudando você a focar no que realmente importa no momento.
+
+- **Painel Personalizado**: Tenha uma visão clara do seu progresso acadêmico em um dashboard customizado que mostra suas atividades pendentes, em andamento e concluídas em um piscar de olhos.
+
+- **Localização Integrada**: Nossa função exclusiva de localização sugere estudos baseados em onde você está - recomendações diferentes quando estiver na biblioteca, no laboratório ou em casa!
+
+- **Painel Administrativo Prático**: Área especial para coordenadores e professores acompanharem o progresso dos alunos, identificando rapidamente áreas que precisam de mais atenção.
+
+- **Planejamento Semanal Inteligente**: Esqueça as planilhas! Nossa ferramenta automaticamente organiza suas atividades em um planner semanal que respeita seu estilo de estudo e ritmo de aprendizado.
+
+---
+
+**AdaLove 2** - Simplificando sua vida acadêmica para que você possa focar no que realmente importa: aprender.
 
 Scripts Disponíveis
 -------------------
 
-* `npm start`: Inicia o servidor Node.js.
-* `npm run dev`: Inicia o servidor com `nodemon`, reiniciando automaticamente após alterações no código.
-* `npm run test`: Executa os testes automatizados.
-* `npm run test:coverage`: Executa os testes e gera um relatório de cobertura de código.
+- `npm start`: Inicia o servidor Node.js.
+- `npm run dev`: Inicia o servidor com `nodemon`, reiniciando automaticamente após alterações no código.
+- `npm run test`: Executa os testes automatizados.
+- `npm run test:coverage`: Executa os testes e gera um relatório de cobertura de código.
 
 Estrutura de Diretórios
 -----------------------
 
-* **`assets/`**: Arquivos estáticos como favicon.ico.
-* **`config/`**: Configurações do banco de dados e outras configurações do projeto.
-* **`controllers/`**: Controladores da aplicação (lógica de negócio).
-* **`documentos/`**: Documentação do projeto, incluindo WAD e diagramas.
-* **`migrations/`**: Scripts SQL para criação e atualização do banco de dados.
-* **`models/`**: Modelos da aplicação (definições de dados e interações com o banco de dados).
-* **`routes/`**: Rotas da aplicação.
-* **`scripts/`**: Scripts utilitários, como inicialização do banco de dados.
-* **`services/`**: Camada de serviço para separar lógica de negócio das operações de banco.
-* **`tests/`**: Testes automatizados.
-* **`views/`**: Templates EJS para renderização da interface do usuário.
+- **`assets/`**: Arquivos estáticos como favicon.ico.
+- **`config/`**: Configurações do banco de dados e outras configurações do projeto.
+- **`controllers/`**: Controladores da aplicação (lógica de negócio).
+- **`documentos/`**: Documentação do projeto, incluindo WAD e diagramas.
+- **`migrations/`**: Scripts SQL para criação e atualização do banco de dados.
+- **`models/`**: Modelos da aplicação (definições de dados e interações com o banco de dados).
+- **`routes/`**: Rotas da aplicação.
+- **`scripts/`**: Scripts utilitários, como inicialização do banco de dados.
+- **`services/`**: Camada de serviço para separar lógica de negócio das operações de banco.
+- **`tests/`**: Testes automatizados.
+- **`views/`**: Templates EJS para renderização da interface do usuário.
 
 Modelo de Banco de Dados
 -----------------------
 
 O banco de dados utiliza o PostgreSQL e possui as seguintes entidades principais:
 
-* **Users**: Armazena logins e informações dos usuários
-* **Cards**: Armazena os cartões de atividades da adalove
-* **Activity Types**: Tipos de atividades
-* **Status Types**: Status possíveis para os cartões
+- **Users**: Armazena logins e informações dos usuários
+- **Cards**: Armazena os cartões de atividades da adalove
+- **Activity Types**: Tipos de atividades
+- **Status Types**: Status possíveis para os cartões
 
 Para **mais informações** sobre a **modelagem do banco de dados**, consulte o arquivo **WAD**.
 [Clique aqui para ir até o arquivo](https://github.com/Yuhtin/adalove-cards-reimaginated/blob/main/documentos/wad.md#3-projeto-da-aplica%C3%A7%C3%A3o-web)
