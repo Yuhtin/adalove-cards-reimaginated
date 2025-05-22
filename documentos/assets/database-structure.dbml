@@ -20,17 +20,6 @@ Table cards {
   date date [not null, default: `now() + 1 week`]
 }
 
-Table instructors {
-  id uuid pk
-  name varchar(100) [not null]
-  instructionAreaId uuid [not null]
-}
-
-Table instruction_areas {
-  id uuid pk
-  name varchar(100) [unique, not null]
-}
-
 Table activity_types {
   id uuid pk
   name varchar(30) [not null, unique]
@@ -44,7 +33,5 @@ Table status_types {
 }
 
 Ref user_cards: cards.userId > users.id
-Ref instructors_cards: cards.instructorId > instructors.id
 Ref activitytype_cards: cards.activityTypeId > activity_types.id
 Ref statustype_cards: cards.statusTypeId > status_types.id
-Ref instructors_areas: instruction_areas.id > instructors.instructionAreaId

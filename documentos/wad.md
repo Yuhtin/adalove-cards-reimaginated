@@ -67,16 +67,12 @@ Deixei também o modelo do banco de dados no formato **DBML** disponível no arq
 
 - **Users**: Armazena logins e informações dos usuários
 - **Cards**: Armazena os cartões de atividades da adalove
-- **Instructors**: Armazena informações sobre os instrutores
-- **Instruction Areas**: Áreas de instrução/conhecimento
 - **Activity Types**: Tipos de atividades (Auto Estudo / Avaliação e Pesquisa / Desenvolvimento de Projetos / Outros)
 - **Status Types**: Status possíveis para os cartões (A Fazer / Fazendo / Feito)
 
 ##### Relações
 
 - Um usuário pode ter vários cartões
-- Um instrutor pode ter vários cartões
-- Cada instrutor pertence a uma área de instrução
 - Cada cartão tem um tipo de atividade
 - Cada cartão tem um status
 

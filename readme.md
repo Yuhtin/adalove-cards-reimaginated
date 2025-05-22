@@ -50,10 +50,11 @@ Isso criará todas as tabelas necessárias no seu banco de dados PostgreSQL conf
 Funcionalidades
 ---------------
 
-* Gerenciamento de Cartões: Criação, visualização, edição e exclusão de cartões de atividades
-* Organização por Categorias: Classificação de atividades por tipo, status e área de instrução
-* Perfil de Usuário: Gerenciamento de informações pessoais e preferências
-* Interface Intuitiva: Design responsivo e amigável para melhor experiência do usuário
+* **Gerenciamento de Cartões:** Criação, visualização, edição e exclusão de cartões de atividades
+* **Organização por Categorias:** Classificação de atividades por tipo, status e área de instrução
+* **Perfil de Usuário:** Gerenciamento de informações pessoais e preferências
+* **Interface Intuitiva:** Design responsivo e amigável para melhor experiência do usuário
+* **Integração com IA:** Estipular tempo para fazer cada autoestudo e criar um planning para a semana, que permite o aluno personalizar o planejamento dado o estilo de estudo dele.
 
 Scripts Disponíveis
 -------------------
@@ -85,8 +86,6 @@ O banco de dados utiliza o PostgreSQL e possui as seguintes entidades principais
 
 * **Users**: Armazena logins e informações dos usuários
 * **Cards**: Armazena os cartões de atividades da adalove
-* **Instructors**: Armazena informações sobre os instrutores
-* **Instruction Areas**: Áreas de instrução/conhecimento
 * **Activity Types**: Tipos de atividades
 * **Status Types**: Status possíveis para os cartões
 
