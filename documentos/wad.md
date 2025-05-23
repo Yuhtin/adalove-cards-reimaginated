@@ -211,7 +211,372 @@ Esta arquitetura proporciona uma separação clara de responsabilidades, facilit
 
 ### 3.6. WebAPI e endpoints (Semana 05)
 
-*Utilize um link para outra página de documentação contendo a descrição completa de cada endpoint. Ou descreva aqui cada endpoint criado para seu sistema.*  
+A API do AdaLove Reimaginated fornece uma interface RESTful para interagir com o sistema, permitindo operações como gerenciamento de usuários, autenticação e manipulação de cartões de atividades. Abaixo estão detalhados todos os endpoints disponíveis, agrupados por área funcional.
+
+#### Endpoints de Autenticação
+
+| Método | Endpoint | Descrição | Protegido por login |
+|--------|----------|-----------|-----------|
+| `POST` | `/auth/login` | Autentica um usuário e retorna um token JWT | ❌ |
+| `POST` | `/auth/register` | Cria um novo usuário no sistema | ❌ |
+| `POST` | `/auth/change-password` | Altera a senha do usuário autenticado | ✅ |
+
+#### Detalhes dos Endpoints de Autenticação
+
+##### `POST /auth/login`
+
+- **Descrição**: Autentica um usuário com base no nome de usuário e senha
+- **Body**:
+
+  ```json
+  {
+    "username": "string",
+    "password": "string"
+  }
+  ```
+
+- **Resposta (200)**:
+
+  ```json
+  {
+    "message": "Authentication successful",
+    "token": "string",
+    "user": {
+      "id": "number",
+      "username": "string",
+      "iconUrl": "string"
+    }
+  }
+  ```
+
+- **Resposta (401)**: Credenciais inválidas
+- **Resposta (400)**: Campos obrigatórios não fornecidos  
+
+##### `POST /auth/register`
+
+- **Descrição**: Registra um novo usuário no sistema
+- **Body**:
+
+  ```json
+  {
+    "username": "string",
+    "password": "string",
+    "iconUrl": "string" (opcional)
+  }
+  ```
+
+- **Resposta (201)**:
+
+  ```json
+  {
+    "message": "User registered successfully",
+    "user": {
+      "id": "number",
+      "username": "string",
+      "iconUrl": "string"
+    }
+  }
+  ```
+
+- **Resposta (409)**: Nome de usuário já existe
+- **Resposta (400)**: Campos obrigatórios não fornecidos  
+
+##### `POST /auth/change-password`
+
+- **Descrição**: Altera a senha do usuário autenticado
+- **Autenticação**: Requer token JWT válido
+- **Body**:
+  
+  ```json
+  {
+    "oldPassword": "string",
+    "newPassword": "string"
+  }
+  ```
+
+- **Resposta (200)**:
+  
+  ```json
+  {
+    "message": "Password updated successfully"
+  }
+  ```
+
+- **Resposta (401)**: Senha antiga incorreta ou token inválido
+- **Resposta (400)**: Campos obrigatórios não fornecidos
+
+#### Endpoints de Usuários
+
+| Método | Endpoint | Descrição | Protegida por API Key |
+|--------|----------|-----------|-----------|
+| `GET` | `/users` | Obtém todos os usuários | ❌ |
+| `GET` | `/users/:id` | Obtém um usuário específico por ID | ❌ |
+| `POST` | `/users` | Cria um novo usuário | ✅ |
+| `PUT` | `/users/:id` | Atualiza um usuário existente | ✅ |
+| `DELETE` | `/users/:id` | Remove um usuário | ✅ |
+| `GET` | `/users/:id/cards` | Obtém um usuário com todos os seus cartões | ✅ |
+| `PATCH` | `/users/:id/icon` | Atualiza apenas o ícone de um usuário | ✅ |
+
+##### `GET /users`
+
+- **Descrição**: Retorna uma lista de todos os usuários
+- **Autenticação**: Requer token JWT válido
+- **Resposta (200)**:
+  
+  ```json
+  [
+    {
+      "id": "number",
+      "username": "string",
+      "iconUrl": "string"
+    }
+  ]
+  ```
+
+##### `GET /users/:id`
+
+- **Descrição**: Retorna os detalhes de um usuário específico
+- **Autenticação**: Requer token JWT válido
+- **Parâmetros**:
+  - `id` (path): ID do usuário
+- **Resposta (200)**:
+  
+  ```json
+  {
+    "id": "number",
+    "username": "string",
+    "iconUrl": "string"
+  }
+  ```
+
+- **Resposta (404)**: Usuário não encontrado
+
+##### `GET /users/:id/cards`
+
+- **Descrição**: Retorna um usuário com todos os seus cartões associados
+- **Autenticação**: Requer token JWT válido
+- **Parâmetros**:
+  - `id` (path): ID do usuário
+- **Resposta (200)**:
+  
+  ```json
+  {
+    "id": "number",
+    "username": "string",
+    "iconUrl": "string",
+    "cards": [
+      {
+        "id": "number",
+        "title": "string",
+        "description": "string",
+        "date": "string (ISO date)",
+        "statusName": "string",
+        "statusIconUrl": "string",
+        "activityTypeName": "string",
+        "activityTypeIconUrl": "string",
+        "instructorName": "string"
+      }
+    ]
+  }
+  ```
+
+- **Resposta (404)**: Usuário não encontrado
+
+##### `PATCH /users/:id/icon`
+
+- **Descrição**: Atualiza apenas o ícone de um usuário
+- **Autenticação**: Requer token JWT válido
+- **Parâmetros**:
+  - `id` (path): ID do usuário
+- **Body**:
+  
+  ```json
+  {
+    "iconUrl": "string"
+  }
+  ```
+
+- **Resposta (200)**:
+
+  ```json
+  {
+    "id": "number",
+    "username": "string",
+    "iconUrl": "string"
+  }
+  ```
+
+- **Resposta (404)**: Usuário não encontrado
+
+#### Endpoints de Cartões (Cards)
+
+Estes endpoints servem para os usuários buscarem os cards que tem associados as suas contas
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/cards` | Obtém cartões com base em filtros |
+| `GET` | `/cards/stats` | Obtém estatísticas dos cartões do usuário |
+| `GET` | `/cards/:id` | Obtém um cartão específico por ID |
+| `POST` | `/cards/import` | Importa cards da AdaLove 1 |
+
+##### `GET /cards`
+
+- **Descrição**: Retorna cartões com base em vários filtros
+- **Autenticação**: Requer token JWT válido
+- **Parâmetros de Consulta** (todos opcionais):
+  - `userId`: Filtra por ID do usuário
+  - `activityTypeId`: Filtra por tipo de atividade
+  - `statusTypeId`: Filtra por tipo de status
+  - `mandatory`: Filtra por obrigatoriedade (true/false)
+  - `weekNumber`: Filtra por número da semana
+  - `instructorName`: Filtra por nome do instrutor
+  - `dateFrom`: Filtra por data inicial (ISO date)
+  - `dateTo`: Filtra por data final (ISO date)
+  - `search`: Termo de busca geral
+  - `orderBy`: Campo para ordenação
+  - `orderDirection`: Direção da ordenação (ASC/DESC)
+  - `limit`: Limite de registros retornados
+
+- **Resposta (200)**:
+
+  ```json
+  [
+    {
+      "id": "number",
+      "title": "string",
+      "description": "string",
+      "date": "string (ISO date)",
+      "statusTypeId": "number",
+      "statusName": "string",
+      "statusIconUrl": "string",
+      "activityTypeId": "number",
+      "activityTypeName": "string",
+      "activityTypeIconUrl": "string",
+      "userId": "number",
+      "ownerUsername": "string",
+      "instructorName": "string",
+      "mandatory": "boolean",
+      "weekNumber": "number"
+    }
+  ]
+  ```
+
+##### `GET /cards/stats`
+
+- **Descrição**: Retorna estatísticas sobre os cartões do usuário autenticado
+- **Autenticação**: Requer token JWT válido
+- **Resposta (200)**:
+
+  ```json
+  {
+    "total": "number",
+    "byStatus": {
+      "todo": "number",
+      "doing": "number",
+      "done": "number"
+    },
+    "mandatory": "number",
+    "optional": "number",
+    "byActivityType": {
+      "studyType": "number",
+      "researchType": "number",
+      "projectType": "number",
+      "otherType": "number"
+    }
+  }
+  ```
+
+##### `PATCH /cards/:id/status`
+
+- **Descrição**: Atualiza apenas o status de um cartão
+- **Autenticação**: Requer token JWT válido
+- **Parâmetros**:
+  - `id` (path): ID do cartão
+- **Body**:
+  
+  ```json
+  {
+    "statusTypeId": "number"
+  }
+  ```
+
+- **Resposta (200)**:
+
+  ```json
+  {
+    "id": "number",
+    "title": "string",
+    "statusTypeId": "number",
+    "statusName": "string"
+  }
+  ```
+
+- **Resposta (404)**: Cartão não encontrado
+- **Resposta (400)**: Campo statusTypeId não fornecido
+
+##### `POST /cards/import`
+
+- **Descrição**: Importa múltiplos cartões de uma fonte externa
+- **Autenticação**: Requer token JWT válido
+- **Body**:
+  
+  ```json
+  {
+    "cards": [
+      {
+        "title": "string",
+        "description": "string",
+        "type": "string",
+        "status": "string",
+        "date": "string (ISO date)",
+        "instructorName": "string",
+        "mandatory": "boolean",
+        "weekNumber": "number"
+      }
+    ]
+  }
+  ```
+
+- **Resposta (201)**:
+
+  ```json
+  {
+    "message": "string",
+    "importedCount": "number",
+    "cards": ["array of imported card objects"]
+  }
+  ```
+
+- **Resposta (400)**: Dados de importação inválidos
+
+#### Segurança
+
+Todos os endpoints, exceto `/auth/login` e `/auth/register`, requerem autenticação via token JWT. O token deve ser incluído no cabeçalho da requisição no formato:
+
+```txt
+Authorization: Bearer <token>
+```
+
+As respostas de erro seguem um formato consistente:
+
+```json
+{
+  "error": "Mensagem descritiva do erro",
+  "message": "Detalhe adicional opcional"
+}
+```
+
+#### Códigos de status HTTP são utilizados de forma adequada:
+
+- **200**: Sucesso
+- **201**: Recurso criado
+- **400**: Requisição inválida
+- **401**: Não autorizado
+- **404**: Recurso não encontrado
+- **409**: Conflito
+- **500**: Erro interno do servidor
+
+Esta API fornece uma interface completa para gerenciar todos os aspectos do sistema AdaLove 2, permitindo operações robustas de CRUD para usuários e cartões, além de funcionalidades especializadas como importação de dados e análise estatística.
 
 ### 3.7 Interface e Navegação (Semana 07)
 
