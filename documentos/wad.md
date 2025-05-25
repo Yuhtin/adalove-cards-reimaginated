@@ -34,6 +34,7 @@ O modelo relacional do banco de dados da aplicação AdaLove Reimaginated foi pr
 O diagrama abaixo apresenta a estrutura completa do banco de dados com todas as tabelas e seus relacionamentos:
 
 #### Diagrama do banco no dbdiagram.io
+
 <div align="center">
   <sup>Figura 1 - Diagrama do Banco de Dados no dbdiagram.io</sup>
   <img src="/documentos/assets/modelo-banco.png"/>
@@ -112,36 +113,134 @@ Os models implementados seguem boas práticas de programação, como encapsulame
 
 ### 2.2. Arquitetura
 
-A arquitetura do sistema AdaLove Reimaginated segue o padrão MVC (Model-View-Controller), que promove a separação de responsabilidades em camadas distintas, tornando o código mais organizado, reutilizável e manutenível. Abaixo está o diagrama da arquitetura implementada, ilustrando como as diferentes partes do sistema interagem entre si e como os dados fluem através da aplicação.
+A arquitetura do sistema AdaLove Reimaginated segue o padrão MVC (Model-View-Controller) adaptado para uma aplicação web moderna com frontend e backend separados. O backend utiliza Node.js com Express.js seguindo o padrão MVC tradicional, enquanto o frontend é uma Single Page Application (SPA) desenvolvida em React.js que consome a API REST do backend. Esta arquitetura promove a separação de responsabilidades em camadas distintas, tornando o código mais organizado, reutilizável e manutenível.
 
 #### Diagrama de Arquitetura MVC
 
-<div align="center">
-  <sup>Figura 3 - Diagrama de Arquitetura MVC</sup>
-  <img src="/documentos/assets/diagram-mvc.png"/>
-  <sup>Fonte: Autoria própria, 2025</sup>
-</div>
+```mermaid
+graph TB
+    Browser[Cliente/Navegador<br/>React SPA]
+    
+    subgraph "FRONTEND LAYER (React.js)"
+        ReactApp[React Application<br/>Components & Pages]
+        ReactRouter[React Router<br/>Client-side Routing]
+        Axios[Axios<br/>HTTP Client]
+        State[State Management<br/>useState, useEffect, Context]
+    end
+    
+    subgraph "BACKEND API LAYER"
+        subgraph "MIDDLEWARE & ROUTING"
+            CORS[CORS Middleware]
+            AuthMiddleware[Auth Middleware<br/>JWT Verification]
+            Routes[Express Routes<br/>userRoutes, authRoutes, cardRoutes]
+        end
+        
+        subgraph "CONTROLLER LAYER"
+            AuthController[Auth Controller<br/>login, register, changePassword]
+            UserController[User Controller<br/>CRUD Operations, getUserWithCards]
+            CardController[Card Controller<br/>CRUD, Filters, Stats, Import]
+        end
+        
+        subgraph "MODEL LAYER"
+            UserModel[User Model<br/>userModel.js<br/>• Authentication<br/>• CRUD Operations<br/>• Profile Management]
+            CardModel[Card Model<br/>cardModel.js<br/>• Card Management<br/>• External Import<br/>• Statistics<br/>• Filtering]
+        end
+    end
+    
+    subgraph "DATABASE LAYER"
+        DB[(PostgreSQL)]
+        subgraph "Tables"
+            Users[users<br/>id, username, password, iconUrl]
+            Cards[cards<br/>id, title, description, date, userId, etc.]
+            ActivityTypes[activity_types<br/>id, name, iconUrl]
+            StatusTypes[status_types<br/>id, name, iconUrl]
+        end
+    end
+    
+    Browser --> ReactApp
+    ReactApp --> ReactRouter
+    ReactApp --> State
+    ReactApp --> Axios
+    
+    Axios -->|HTTP Requests<br/>JSON Data| CORS
+    CORS --> Routes
+    Routes --> AuthMiddleware
+    
+    AuthMiddleware -->|Authenticated| AuthController
+    AuthMiddleware -->|Authenticated| UserController
+    AuthMiddleware -->|Authenticated| CardController
+    
+    AuthController --> UserModel
+    UserController --> UserModel
+    CardController --> CardModel
+    
+    UserModel -->|SQL Queries| DB
+    CardModel -->|SQL Queries| DB
+    
+    DB --> Users
+    DB --> Cards
+    DB --> ActivityTypes
+    DB --> StatusTypes
+    
+    Users -.->|FK: userId| Cards
+    ActivityTypes -.->|FK: activityTypeId| Cards
+    StatusTypes -.->|FK: statusTypeId| Cards
+    
+    UserModel -->|Data| UserController
+    CardModel -->|Data| CardController
+    UserModel -->|Data| AuthController
+    
+    AuthController -->|JSON Response| CORS
+    UserController -->|JSON Response| CORS
+    CardController -->|JSON Response| CORS
+    
+    CORS -->|JSON Response| Axios
+    Axios -->|Update State| ReactApp
+    ReactApp -->|Re-render UI| Browser
+    
+    classDef frontend fill:#61dafb,stroke:#20232a,stroke-width:2px
+    classDef middleware fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef controller fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    classDef model fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef database fill:#f1f8e9,stroke:#689f38,stroke-width:2px
+    classDef table fill:#fff8e1,stroke:#fbc02d,stroke-width:1px
+    
+    class Browser,ReactApp,ReactRouter,Axios,State frontend
+    class CORS,AuthMiddleware,Routes middleware
+    class AuthController,UserController,CardController controller
+    class UserModel,CardModel model
+    class DB database
+    class Users,Cards,ActivityTypes,StatusTypes table
+```
 
 #### Explicação do Fluxo de Dados
 
-1. **Requisição do Cliente**
+1. **Frontend React Application**
 
-- O fluxo inicia quando o cliente (navegador) faz uma solicitação HTTP para a aplicação.
-- Esta requisição é recebida pelo sistema de rotas do Express.js.
+- O usuário interage com a interface React.js no navegador
+- React Router gerencia a navegação client-side entre as diferentes páginas
+- Estado da aplicação é gerenciado através de hooks do React (useState, useEffect, Context)
 
-2. **Middleware e Roteamento**
+2. **Comunicação Frontend-Backend**
 
-- Antes de chegar ao controlador, a requisição passa pelo middleware de autenticação, que verifica se o usuário está autenticado e tem permissão para acessar o recurso solicitado.
-- O sistema de rotas direciona a requisição para o controlador adequado com base no URL e no método HTTP utilizado.
+- Axios é utilizado para fazer requisições HTTP para a API REST do backend
+- As requisições são feitas em formato JSON
+- JWT tokens são enviados nos headers para autenticação
 
-3. **Controladores**
+3. **Middleware e Roteamento (Backend)**
+
+- CORS middleware permite requisições cross-origin do frontend React
+- Middleware de autenticação verifica tokens JWT antes de processar as requisições
+- Sistema de rotas do Express direciona para os controladores apropriados
+
+4. **Controladores (Backend)**
 
 - Os controladores recebem as requisições roteadas e são responsáveis por:
 - Extrair e validar dados da requisição
 - Coordenar a interação entre o Model e a View
 - Implementar a lógica de negócio específica da aplicação
 
-4. **Models**
+5. **Models (Backend)**
 
 - Os Models encapsulam todas as operações relacionadas aos dados:
   - Comunicação com o banco de dados PostgreSQL
@@ -149,12 +248,12 @@ A arquitetura do sistema AdaLove Reimaginated segue o padrão MVC (Model-View-Co
   - Validação de dados antes da persistência
   - Transformação de dados entre o formato do banco e o formato da aplicação
 
-5. **Banco de Dados**
+6. **Banco de Dados**
 
 - O PostgreSQL armazena todos os dados persistentes da aplicação
 - As tabelas principais incluem: Users, Cards, Activity Types e Status Types
 
-6. **Resposta ao Cliente**
+7. **Resposta ao Cliente**
 
 - Após processar a requisição e interagir com o modelo, o controlador:
   - Para requisições de API: formata e envia respostas JSON
@@ -163,21 +262,32 @@ A arquitetura do sistema AdaLove Reimaginated segue o padrão MVC (Model-View-Co
 
 #### Componentes Principais
 
+##### Frontend (React.js)
+
+- **React Components**: Componentes reutilizáveis para interface do usuário
+- **React Router**: Roteamento client-side para navegação SPA
+- **Axios**: Cliente HTTP para comunicação com a API
+- **State Management**: Gerenciamento de estado local e global da aplicação
+
 ##### Models
 
-- User Model: Gerencia operações relacionadas aos usuários
-- Card Model: Gerencia operações relacionadas aos cartões de atividades
+- **User Model**: Gerencia operações relacionadas aos usuários
+- **Card Model**: Gerencia operações relacionadas aos cartões de atividades
 
-##### Controllers
+##### Backend (Node.js/Express)
 
-- Auth Controller: Gerencia autenticação e autorização
-- User Controller: Gerencia operações de usuário
-- Card Controller: Gerencia operações de cartões
+- **Auth Controller**: Gerencia autenticação e autorização
+- **User Controller**: Operações CRUD de usuários e relacionamentos
+- **Card Controller**: Gerenciamento completo de cartões, filtros e estatísticas
 
-##### Views/API
+##### Vantagens desta Arquitetura
 
-- Interface web para interações do usuário
-- API REST para comunicação com clientes front-end
+- **Separação Frontend-Backend**: Permite desenvolvimento independente das camadas
+- **Reutilização**: API REST pode ser consumida por diferentes tipos de clientes
+- **Escalabilidade**: Frontend e backend podem ser escalados independentemente
+- **Manutenibilidade**: Responsabilidades bem definidas facilitam manutenção
+- **Performance**: SPA proporciona experiência de usuário mais fluida
+- **Flexibilidade**: Possibilita futuras integrações com mobile apps ou outras interfaces
 
 ---
 
