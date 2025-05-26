@@ -25,6 +25,15 @@ const getUserById = async (req, res) => {
 const createUser = async (req, res) => {
   try {
     const { username, password, iconUrl } = req.body;
+    
+    if (!username || username.length < 3 || username.length > 16) {
+      return res.status(400).json({ error: 'Username must be between 3 and 16 characters' });
+    }
+    
+    if (!password || password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+    
     const userData = { username, password, iconUrl };
     const newUser = await User.create(userData);
     res.status(201).json(newUser);

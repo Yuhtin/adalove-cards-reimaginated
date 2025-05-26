@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const bcrypt = require('bcrypt');
 
 class User {
   static async getAll() {
@@ -17,9 +18,10 @@ class User {
   }
 
   static async create(data) {
+    const hashedPassword = await bcrypt.hash(data.password, 10);
     const result = await db.query(
       'INSERT INTO users (username, password, iconUrl) VALUES ($1, $2, $3) RETURNING id, username, iconUrl',
-      [data.username, data.password, data.iconUrl || null]
+      [data.username, hashedPassword, data.iconUrl || null]
     );
     return result.rows[0];
   }
@@ -36,7 +38,7 @@ class User {
     
     if (data.password !== undefined) {
       updateFields.push(`password = $${paramCounter++}`);
-      params.push(data.password);
+      params.push(await bcrypt.hash(data.password, 10)); 
     }
     
     if (data.iconUrl !== undefined) {
@@ -67,12 +69,14 @@ class User {
   }
 
   static async authenticate(username, password) {
-    const result = await db.query('SELECT * FROM users WHERE username = $1 AND password = $2', [username, password]);
-    if (result.rows.length === 0) {
-      return null;
-    }
+    const result = await db.query('SELECT * FROM users WHERE username = $1', [username]);
+    if (result.rows.length === 0) return null;
     
     const user = result.rows[0];
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    
+    if (!isValidPassword) return null;
+    
     delete user.password;
     return user;
   }
@@ -88,13 +92,12 @@ class User {
     
     const cardsResult = await db.query(`
       SELECT c.*, 
-             i.name as instructorName,
+             c.instructorName,
              at.name as activityTypeName,
              at.iconUrl as activityTypeIconUrl,
              st.name as statusName,
              st.iconUrl as statusIconUrl
       FROM cards c
-      JOIN instructors i ON c.instructorId = i.id
       JOIN activity_types at ON c.activityTypeId = at.id
       JOIN status_types st ON c.statusTypeId = st.id
       WHERE c.userId = $1
@@ -102,20 +105,20 @@ class User {
     `, [id]);
     
     user.cards = cardsResult.rows;
-    
     return user;
   }
   
   static async changePassword(id, oldPassword, newPassword) {
-    const checkResult = await db.query('SELECT id FROM users WHERE id = $1 AND password = $2', [id, oldPassword]);
+    const userResult = await db.query('SELECT password FROM users WHERE id = $1', [id]);
+    if (userResult.rows.length === 0) return false;
     
-    if (checkResult.rows.length === 0) {
-      return false;
-    }
+    const isValidOldPassword = await bcrypt.compare(oldPassword, userResult.rows[0].password);
+    if (!isValidOldPassword) return false;
     
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
     const updateResult = await db.query(
       'UPDATE users SET password = $1 WHERE id = $2 RETURNING id',
-      [newPassword, id]
+      [hashedNewPassword, id]
     );
     
     return updateResult.rowCount > 0;

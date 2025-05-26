@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 require('dotenv').config();
+const winston = require('winston');
 
 const isSSL = process.env.DB_SSL === 'true';
 
@@ -10,6 +11,15 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
   ssl: isSSL ? { rejectUnauthorized: false } : false,
+});
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.Console()
+  ]
 });
 
 module.exports = {

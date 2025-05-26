@@ -1,8 +1,10 @@
-duarte/development/inteli/adalove-cards-reimaginated/controllers/authController.js
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-default-secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET is required in environment variables');
+}
 
 const login = async (req, res) => {
   try {
