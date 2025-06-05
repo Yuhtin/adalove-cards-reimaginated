@@ -1,26 +1,79 @@
 @import "tailwindcss";
 
+/* Paleta de cores AdaLove */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Light Mode */
+  --ada-red: #E30614;
+  --ada-bg-light: #FFFFFF;
+  --ada-section-light: #F2F2F2;
+  --ada-accent-light: #F25050;
+  --ada-text-primary-light: #282136;
+  
+  /* Dark Mode (padrão) */
+  --ada-bg-dark: #2D2440;
+  --ada-section-dark: #1C1726;
+  --ada-accent-dark: #F24444;
+  --ada-text-primary-dark: #F2F2F2;
+  --ada-text-secondary-dark: #282136;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Aplicar cores AdaLove globalmente */
+html.dark {
+  background-color: var(--ada-bg-dark);
+  color: var(--ada-text-primary-dark);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html:not(.dark) {
+  background-color: var(--ada-bg-light);
+  color: var(--ada-text-primary-light);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--ada-bg-light);
+  color: var(--ada-text-primary-light);
 }
+
+html.dark body {
+  background-color: var(--ada-bg-dark);
+  color: var(--ada-text-primary-dark);
+}
+
+/* Utilitários customizados para cores AdaLove */
+.bg-ada-red { background-color: var(--ada-red); }
+.text-ada-red { color: var(--ada-red); }
+.border-ada-red { border-color: var(--ada-red); }
+
+/* Dark mode */
+.bg-ada-bg-dark { background-color: var(--ada-bg-dark); }
+.bg-ada-section-dark { background-color: var(--ada-section-dark); }
+.text-ada-accent-dark { color: var(--ada-accent-dark); }
+.text-ada-text-primary-dark { color: var(--ada-text-primary-dark); }
+.text-ada-text-secondary-dark { color: var(--ada-text-secondary-dark); }
+
+/* Light mode */
+.bg-ada-bg-light { background-color: var(--ada-bg-light); }
+.bg-ada-section-light { background-color: var(--ada-section-light); }
+.text-ada-accent-light { color: var(--ada-accent-light); }
+.text-ada-text-primary-light { color: var(--ada-text-primary-light); }
+
+/* Estados hover e focus */
+.hover\:bg-ada-red\/90:hover { background-color: color-mix(in srgb, var(--ada-red) 90%, transparent); }
+.hover\:bg-ada-red\/10:hover { background-color: color-mix(in srgb, var(--ada-red) 10%, transparent); }
+.focus\:ring-ada-red\/50:focus { 
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ada-red) 50%, transparent); 
+}
+
+/* Bordas */
+.border-ada-red\/20 { border-color: color-mix(in srgb, var(--ada-red) 20%, transparent); }
+.border-ada-red\/10 { border-color: color-mix(in srgb, var(--ada-red) 10%, transparent); }
+
+/* Backgrounds com opacidade */
+.bg-ada-red\/10 { background-color: color-mix(in srgb, var(--ada-red) 10%, transparent); }
+.bg-red-500\/10 { background-color: color-mix(in srgb, #ef4444 10%, transparent); }
+.bg-green-500\/10 { background-color: color-mix(in srgb, #22c55e 10%, transparent); }
+
+/* Border com opacidade */
+.border-red-500\/20 { border-color: color-mix(in srgb, #ef4444 20%, transparent); }
+.border-green-500\/20 { border-color: color-mix(in srgb, #22c55e 20%, transparent); }

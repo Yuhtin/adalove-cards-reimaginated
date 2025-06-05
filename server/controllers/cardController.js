@@ -1,4 +1,6 @@
 const Card = require('../models/cardModel');
+const ActivityType = require('../models/activityTypeModel');
+const StatusType = require('../models/statusTypeModel');
 
 const getAllCards = async (req, res) => {
   try {
@@ -152,6 +154,24 @@ const importCards = async (req, res) => {
   }
 };
 
+const getAllActivityTypes = async (req, res) => {
+  try {
+    const types = await ActivityType.getAll();
+    res.status(200).json(types);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getAllStatusTypes = async (req, res) => {
+  try {
+    const types = await StatusType.getAll();
+    res.status(200).json(types);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getAllCards,
   getCardById,
@@ -162,5 +182,7 @@ module.exports = {
   deleteCard,
   getCardsByFilters,
   getCardStats,
-  importCards
+  importCards,
+  getAllActivityTypes,
+  getAllStatusTypes
 };

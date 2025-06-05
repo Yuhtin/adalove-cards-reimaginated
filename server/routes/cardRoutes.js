@@ -6,6 +6,8 @@ const authController = require('../controllers/authController');
 // Apply authentication middleware to all routes
 router.use(authController.verifyToken);
 
+router.get('/activity-types', cardController.getAllActivityTypes);
+router.get('/status-types', cardController.getAllStatusTypes);
 router.get('/', cardController.getCardsByFilters);
 router.get('/stats', cardController.getCardStats);
 router.get('/:id', cardController.getCardById);

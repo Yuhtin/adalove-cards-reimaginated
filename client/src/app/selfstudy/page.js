@@ -1,237 +1,343 @@
-import { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
+'use client';
 
-export default function Autoestudos() {
-  const [cards, setCards] = useState([]);
-  const [filter, setFilter] = useState('all');
-  const [search, setSearch] = useState('');
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../contexts/AuthContext';
+import { studentActivities, types, sections } from '../../lib/api';
+import Layout from '../../components/Layout';
+
+export default function SelfStudy() {
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const [activities, setActivities] = useState([]);
+  const [activityTypes, setActivityTypes] = useState([]);
+  const [statusTypes, setStatusTypes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [filters, setFilters] = useState({
+    search: '',
+    statusTypeId: '',
+    activityTypeId: '',
+    weekNumber: '',
+    mandatory: ''
+  });
+  const [showImportModal, setShowImportModal] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    fetchCards();
-  }, []);
+    if (authLoading) return;
+    
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
 
-  const fetchCards = async () => {
+    fetchData();
+  }, [isAuthenticated, authLoading, router]);
+
+  const fetchData = async () => {
     try {
-      // Replace with actual API call to /api/cards
-      const mockCards = [
-        {
-          id: 1,
-          title: "EAP - Estrutura Analítica de Projeto",
-          description: "A Estrutura Analítica do Trabalho (EAP), é um recurso para dividir o projeto em pacotes de tarefas...",
-          instructor: "Fabiana Martins de Oliveira",
-          type: "Autoestudo",
-          status: "pending",
-          week: "Semana 08",
-          dueDate: "2025-01-30",
-          priority: "high",
-          tags: ["Projeto", "Gestão"]
-        },
-        {
-          id: 2,
-          title: "Matriz CSD",
-          description: "Matriz de Conhecimento, Suposições e Dúvidas para organização de ideias",
-          instructor: "Fabiana Martins de Oliveira",
-          type: "Autoestudo", 
-          status: "completed",
-          week: "Semana 07",
-          dueDate: "2025-01-23",
-          priority: "medium",
-          tags: ["Análise", "Metodologia"]
-        },
-        // Add more mock data...
-      ];
-      setCards(mockCards);
-    } catch (error) {
-      console.error('Erro ao buscar cards:', error);
+      setLoading(true);
+      
+      const [activitiesData, activityTypesData, statusTypesData] = await Promise.all([
+        studentActivities.getAll(filters),
+        types.getActivityTypes(),
+        types.getStatusTypes()
+      ]);
+      
+      setActivities(activitiesData);
+      setActivityTypes(activityTypesData);
+      setStatusTypes(statusTypesData);
+      
+    } catch (err) {
+      setError('Erro ao carregar atividades');
+      console.error('Erro:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const filteredCards = cards.filter(card => {
-    const matchesFilter = filter === 'all' || card.status === filter;
-    const matchesSearch = card.title.toLowerCase().includes(search.toLowerCase()) ||
-                         card.instructor.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
 
-  const StatusBadge = ({ status }) => {
-    const styles = {
-      completed: 'bg-green-400/10 text-green-400 border-green-400/20',
-      pending: 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20',
-      overdue: 'bg-red-400/10 text-red-400 border-red-400/20'
-    };
-    
-    const labels = {
-      completed: 'Concluído',
-      pending: 'Pendente',
-      overdue: 'Atrasado'
-    };
+  const applyFilters = () => {
+    fetchData();
+  };
 
+  const clearFilters = () => {
+    setFilters({
+      search: '',
+      statusTypeId: '',
+      activityTypeId: '',
+      weekNumber: '',
+      mandatory: ''
+    });
+    setTimeout(() => fetchData(), 100);
+  };
+
+  const updateActivityStatus = async (activityId, newStatusId) => {
+    try {
+      await studentActivities.updateStatus(activityId, newStatusId);
+      fetchData(); // Recarregar dados
+    } catch (err) {
+      console.error('Erro ao atualizar status:', err);
+      alert('Erro ao atualizar status da atividade');
+    }
+  };
+
+  const getStatusColor = (statusName) => {
+    switch (statusName?.toLowerCase()) {
+      case 'feito':
+      case 'done':
+        return 'bg-green-400';
+      case 'fazendo':
+      case 'doing':
+        return 'bg-yellow-400';
+      case 'a fazer':
+      case 'todo':
+      default:
+        return 'bg-gray-400';
+    }
+  };
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  if (authLoading || loading) {
     return (
-      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${styles[status]}`}>
-        {labels[status]}
-      </span>
+      <Layout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-ada-red/20 border-t-ada-red rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-ada-text-primary-dark/70">Carregando autoestudos...</p>
+          </div>
+        </div>
+      </Layout>
     );
-  };
-
-  const PriorityIndicator = ({ priority }) => {
-    const colors = {
-      high: 'bg-red-400',
-      medium: 'bg-yellow-400',
-      low: 'bg-green-400'
-    };
-    
-    return <div className={`w-1 h-full ${colors[priority]} rounded-l-lg`}></div>;
-  };
+  }
 
   return (
     <Layout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-ada-text-primary-dark dark:text-ada-text-primary-dark">
+            <h1 className="text-3xl font-bold text-ada-text-primary-dark">
               Autoestudos
             </h1>
             <p className="text-ada-text-primary-dark/70 mt-1">
-              Gerencie suas atividades acadêmicas
+              Gerencie suas atividades de autoestudo
             </p>
           </div>
-          
-          {/* View Toggle */}
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded-lg transition-colors ${
-                viewMode === 'list' 
-                  ? 'bg-ada-red text-white' 
-                  : 'bg-ada-section-dark text-ada-text-primary-dark hover:bg-ada-red/10'
-              }`}
-            >
-              📋
-            </button>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-lg transition-colors ${
-                viewMode === 'grid' 
-                  ? 'bg-ada-red text-white' 
-                  : 'bg-ada-section-dark text-ada-text-primary-dark hover:bg-ada-red/10'
-              }`}
-            >
-              ⚏
-            </button>
-          </div>
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="bg-ada-red text-white px-6 py-3 rounded-lg hover:bg-ada-red/90 transition-colors font-medium"
+          >
+            Importar da AdaLove
+          </button>
         </div>
 
-        {/* Filters and Search */}
-        <div className="bg-ada-section-dark dark:bg-ada-section-dark rounded-xl p-6 border border-ada-red/10">
-          <div className="flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 lg:space-x-6">
-            {/* Search */}
-            <div className="flex-1">
+        {/* Filters */}
+        <div className="bg-ada-section-dark rounded-xl p-6 border border-ada-red/10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-ada-text-primary-dark mb-2">
+                Buscar
+              </label>
               <input
                 type="text"
-                placeholder="Buscar por título ou instrutor..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full px-4 py-3 bg-ada-bg-dark border border-ada-red/20 rounded-lg text-ada-text-primary-dark placeholder-ada-text-primary-dark/50 focus:outline-none focus:ring-2 focus:ring-ada-red/50"
+                value={filters.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+                placeholder="Nome da atividade..."
+                className="w-full px-3 py-2 bg-ada-bg-dark border border-ada-red/20 rounded-lg text-ada-text-primary-dark placeholder-ada-text-primary-dark/50 focus:outline-none focus:ring-2 focus:ring-ada-red/50"
               />
             </div>
             
-            {/* Filters */}
-            <div className="flex space-x-2">
-              {[
-                { key: 'all', label: 'Todos' },
-                { key: 'pending', label: 'Pendentes' },
-                { key: 'completed', label: 'Concluídos' },
-                { key: 'overdue', label: 'Atrasados' }
-              ].map(filterOption => (
-                <button
-                  key={filterOption.key}
-                  onClick={() => setFilter(filterOption.key)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    filter === filterOption.key
-                      ? 'bg-ada-red text-white'
-                      : 'bg-ada-bg-dark text-ada-text-primary-dark hover:bg-ada-red/10'
-                  }`}
-                >
-                  {filterOption.label}
-                </button>
-              ))}
+            <div>
+              <label className="block text-sm font-medium text-ada-text-primary-dark mb-2">
+                Status
+              </label>
+              <select
+                value={filters.statusTypeId}
+                onChange={(e) => handleFilterChange('statusTypeId', e.target.value)}
+                className="w-full px-3 py-2 bg-ada-bg-dark border border-ada-red/20 rounded-lg text-ada-text-primary-dark focus:outline-none focus:ring-2 focus:ring-ada-red/50"
+              >
+                <option value="">Todos os status</option>
+                {statusTypes.map(status => (
+                  <option key={status.id} value={status.id}>{status.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-ada-text-primary-dark mb-2">
+                Tipo
+              </label>
+              <select
+                value={filters.activityTypeId}
+                onChange={(e) => handleFilterChange('activityTypeId', e.target.value)}
+                className="w-full px-3 py-2 bg-ada-bg-dark border border-ada-red/20 rounded-lg text-ada-text-primary-dark focus:outline-none focus:ring-2 focus:ring-ada-red/50"
+              >
+                <option value="">Todos os tipos</option>
+                {activityTypes.map(type => (
+                  <option key={type.id} value={type.id}>{type.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-ada-text-primary-dark mb-2">
+                Semana
+              </label>
+              <input
+                type="number"
+                value={filters.weekNumber}
+                onChange={(e) => handleFilterChange('weekNumber', e.target.value)}
+                placeholder="Número da semana"
+                className="w-full px-3 py-2 bg-ada-bg-dark border border-ada-red/20 rounded-lg text-ada-text-primary-dark placeholder-ada-text-primary-dark/50 focus:outline-none focus:ring-2 focus:ring-ada-red/50"
+              />
+            </div>
+
+            <div className="flex items-end space-x-2">
+              <button
+                onClick={applyFilters}
+                className="bg-ada-red text-white px-4 py-2 rounded-lg hover:bg-ada-red/90 transition-colors"
+              >
+                Filtrar
+              </button>
+              <button
+                onClick={clearFilters}
+                className="bg-ada-bg-dark text-ada-text-primary-dark border border-ada-red/20 px-4 py-2 rounded-lg hover:bg-ada-red/10 transition-colors"
+              >
+                Limpar
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Cards List/Grid */}
-        <div className={viewMode === 'grid' 
-          ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
-          : 'space-y-3'
-        }>
-          {filteredCards.map(card => (
-            <div key={card.id} className={`bg-ada-section-dark dark:bg-ada-section-dark rounded-xl border border-ada-red/10 hover:border-ada-red/30 transition-colors cursor-pointer ${
-              viewMode === 'list' ? 'flex items-center' : 'p-6'
-            }`}>
-              {viewMode === 'list' ? (
-                <>
-                  <PriorityIndicator priority={card.priority} />
-                  <div className="flex-1 flex items-center justify-between p-6">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="font-semibold text-ada-text-primary-dark truncate">
-                          {card.title}
-                        </h3>
-                        <StatusBadge status={card.status} />
-                      </div>
-                      <div className="flex items-center space-x-4 text-sm text-ada-text-primary-dark/70">
-                        <span>👨‍🏫 {card.instructor}</span>
-                        <span>📅 {card.week}</span>
-                        <span>⏰ {new Date(card.dueDate).toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex items-center space-x-2 mt-2">
-                        {card.tags.map(tag => (
-                          <span key={tag} className="px-2 py-1 bg-ada-accent-dark/10 text-ada-accent-dark rounded text-xs">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <button className="ml-4 text-ada-accent-dark hover:text-ada-red transition-colors">
-                      →
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="font-semibold text-ada-text-primary-dark">
-                      {card.title}
-                    </h3>
-                    <StatusBadge status={card.status} />
-                  </div>
-                  <p className="text-ada-text-primary-dark/70 text-sm mb-4 line-clamp-2">
-                    {card.description}
-                  </p>
-                  <div className="space-y-2 text-sm text-ada-text-primary-dark/70">
-                    <div>👨‍🏫 {card.instructor}</div>
-                    <div>📅 {card.week}</div>
-                    <div>⏰ {new Date(card.dueDate).toLocaleDateString()}</div>
-                  </div>
-                  <div className="flex items-center justify-between mt-4">
-                    <div className="flex space-x-1">
-                      {card.tags.map(tag => (
-                        <span key={tag} className="px-2 py-1 bg-ada-accent-dark/10 text-ada-accent-dark rounded text-xs">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <button className="text-ada-accent-dark hover:text-ada-red transition-colors">
-                      →
-                    </button>
-                  </div>
-                </>
-              )}
+        {/* Activities List */}
+        {error ? (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-6 text-center">
+            <p className="text-red-400">{error}</p>
+            <button 
+              onClick={fetchData}
+              className="mt-4 bg-ada-red text-white px-4 py-2 rounded-lg hover:bg-ada-red/90 transition-colors"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        ) : activities.length === 0 ? (
+          <div className="bg-ada-section-dark rounded-xl p-12 border border-ada-red/10 text-center">
+            <div className="w-16 h-16 bg-ada-red/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-ada-red text-2xl">📚</span>
             </div>
-          ))}
-        </div>
+            <h3 className="text-xl font-bold text-ada-text-primary-dark mb-2">
+              Nenhuma atividade encontrada
+            </h3>
+            <p className="text-ada-text-primary-dark/70 mb-6">
+              Importe suas atividades da AdaLove original para começar
+            </p>
+            <button
+              onClick={() => setShowImportModal(true)}
+              className="bg-ada-red text-white px-6 py-3 rounded-lg hover:bg-ada-red/90 transition-colors font-medium"
+            >
+              Importar Atividades
+            </button>
+          </div>
+        ) : (
+          <div className="bg-ada-section-dark rounded-xl border border-ada-red/10 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-ada-bg-dark/50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-ada-text-primary-dark">Atividade</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-ada-text-primary-dark">Professor</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-ada-text-primary-dark">Semana</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-ada-text-primary-dark">Data</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-ada-text-primary-dark">Status</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-ada-text-primary-dark">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-ada-red/10">
+                  {activities.map(activity => (
+                    <tr key={activity.id} className="hover:bg-ada-bg-dark/30 transition-colors">
+                      <td className="px-6 py-4">
+                        <div>
+                          <h3 className="font-medium text-ada-text-primary-dark">{activity.activityname}</h3>
+                          <p className="text-sm text-ada-text-primary-dark/70">{activity.activitytypename}</p>
+                          {activity.mandatory && (
+                            <span className="inline-block mt-1 px-2 py-1 text-xs bg-ada-red/10 text-ada-red rounded-full">
+                              Obrigatória
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-ada-text-primary-dark">
+                        {activity.instructorname}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-ada-text-primary-dark">
+                        Semana {activity.weeknumber}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-ada-text-primary-dark">
+                        {formatDate(activity.activitydate)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-2 h-2 rounded-full ${getStatusColor(activity.statusname)}`}></div>
+                          <span className="text-sm text-ada-text-primary-dark">{activity.statusname}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <select
+                          value={activity.statustypeid}
+                          onChange={(e) => updateActivityStatus(activity.id, parseInt(e.target.value))}
+                          className="text-xs px-2 py-1 bg-ada-bg-dark border border-ada-red/20 rounded text-ada-text-primary-dark focus:outline-none focus:ring-1 focus:ring-ada-red/50"
+                        >
+                          {statusTypes.map(status => (
+                            <option key={status.id} value={status.id}>{status.name}</option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Import Modal Placeholder */}
+        {showImportModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-ada-section-dark rounded-xl p-6 max-w-md w-full mx-4">
+              <h2 className="text-xl font-bold text-ada-text-primary-dark mb-4">
+                Importar da AdaLove
+              </h2>
+              <p className="text-ada-text-primary-dark/70 mb-6">
+                Esta funcionalidade será implementada em breve. Você poderá colar os dados JSON da AdaLove original aqui.
+              </p>
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => setShowImportModal(false)}
+                  className="flex-1 bg-ada-bg-dark text-ada-text-primary-dark border border-ada-red/20 py-2 rounded-lg hover:bg-ada-red/10 transition-colors"
+                >
+                  Fechar
+                </button>
+                <button
+                  onClick={() => setShowImportModal(false)}
+                  className="flex-1 bg-ada-red text-white py-2 rounded-lg hover:bg-ada-red/90 transition-colors"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );

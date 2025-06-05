@@ -60,21 +60,16 @@ class Card {
    * @returns 
    */
   static async importFromExternalSource(externalData, userId) {
-    // Get or create the activity type based on the "type" field
     let activityTypeId = await this._getOrCreateActivityType(externalData.type);
     
-    // Skip if activity type is null (ignored type)
     if (!activityTypeId) {
       return null;
     }
 
-    // Map status from external source to our status types
     let statusTypeId = await this._mapExternalStatus(externalData.status);
 
-    // Extract date or use default
     let date = externalData.date || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    // Create card data object
     const cardData = {
       userId: userId,
       name: externalData.caption,
@@ -89,16 +84,13 @@ class Card {
       date: date
     };
 
-    // Create the card
     return await this.create(cardData);
   }
 
   static async _getOrCreateActivityType(externalType) {
-    // Map external type to our activity type
     let activityName;
     let iconUrl;
 
-    // Map external types to our activity types
     switch (externalType) {
       case 2:
         activityName = 'Autoestudo';
@@ -112,19 +104,16 @@ class Card {
         activityName = 'Encontro de Instrução';
         iconUrl = '/images/icons/practical-activity.png';
         break;
-      // Add more mappings as needed
       default:
-        return null; // Ignored type
+        return null;
     }
 
-    // Check if activity type exists
     const typeResult = await db.query('SELECT id FROM activity_types WHERE name = $1', [activityName]);
 
     if (typeResult.rows.length > 0) {
       return typeResult.rows[0].id;
     }
 
-    // Create new activity type
     const newTypeResult = await db.query(
       'INSERT INTO activity_types (name, iconUrl) VALUES ($1, $2) RETURNING id',
       [activityName, iconUrl]
@@ -134,8 +123,6 @@ class Card {
   }
 
   static async _mapExternalStatus(externalStatus) {
-    // Map external status to our status types
-    // Assuming: 1 = To Do, 2 = Doing, 3 = Done
     let statusId;
 
     switch (externalStatus) {
@@ -152,20 +139,17 @@ class Card {
         statusId = 1; // Default to To Do
     }
 
-    // Check if this status type exists
     const statusResult = await db.query('SELECT id FROM status_types WHERE id = $1', [statusId]);
 
     if (statusResult.rows.length > 0) {
       return statusId;
     }
 
-    // If status doesn't exist, return default (1 - To Do)
     return 1;
   }
 
   static _extractWeekFromData(externalData) {
-    // Try to extract week number from data, or return default
-    // You can implement custom logic here based on your data format
+    // TODO
     return 1; // Default week
   }
 

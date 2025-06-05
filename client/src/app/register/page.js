@@ -1,143 +1,182 @@
 'use client';
+
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../../contexts/AuthContext';
+import { auth } from '@/lib/api';
 
-export default function Register() {
+export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const router = useRouter();
+  const { login } = useAuth();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
     if (formData.password !== formData.confirmPassword) {
-      alert('As senhas não coincidem');
+      setError('As senhas não coincidem');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('A senha deve ter pelo menos 6 caracteres');
+      setLoading(false);
       return;
     }
     
-    setLoading(true);
-    
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password
-        }),
+      const data = await auth.register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
       });
       
-      if (response.ok) {
-        router.push('/login?message=registered');
-      } else {
-        alert('Erro no cadastro');
-      }
+      setSuccess('Conta criada com sucesso! Redirecionando...');
+      
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      login(data.user, data.token);
+      
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 2000);
     } catch (error) {
-      console.error('Erro:', error);
+      console.error('Erro no registro:', error);
+      setError(error.response?.data?.message || 'Erro ao criar conta');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-ada-bg-dark flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-ada-bg-light dark:bg-ada-bg-dark flex items-center justify-center px-4">
+      <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="text-center">
-          <div className="w-16 h-16 bg-ada-red rounded-xl flex items-center justify-center mx-auto">
-            <span className="text-white font-bold text-2xl">A</span>
-          </div>
-          <h2 className="mt-6 text-3xl font-bold text-ada-text-primary-dark">
-            AdaLove 2
-          </h2>
-          <p className="mt-2 text-ada-text-primary-dark/70">
-            Crie sua conta
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-ada-red mb-2">AdaLove</h1>
+          <p className="text-ada-text-primary-light dark:text-ada-text-primary-dark">
+            Crie sua conta para começar
           </p>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 rounded-md bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm">
+            {error}
+          </div>
+        )}
+
+        {/* Success Message */}
+        {success && (
+          <div className="mb-4 p-3 rounded-md bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 text-sm">
+            {success}
+          </div>
+        )}
+
         {/* Form */}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="bg-ada-section-light dark:bg-ada-section-dark rounded-lg shadow-lg p-8">
+          <div className="space-y-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-ada-text-primary-dark mb-2">
-                Nome completo
+              <label htmlFor="username" className="block text-sm font-medium text-ada-text-primary-light dark:text-ada-text-primary-dark mb-2">
+                Usuário
               </label>
               <input
-                id="name"
                 type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-ada-red/20 rounded-md focus:outline-none focus:ring-ada-red/50 focus:border-ada-red bg-white dark:bg-ada-bg-dark text-ada-text-primary-light dark:text-ada-text-primary-dark"
+                placeholder="Digite seu usuário"
                 required
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                className="w-full px-4 py-3 bg-ada-section-dark border border-ada-red/20 rounded-lg text-ada-text-primary-dark placeholder-ada-text-primary-dark/50 focus:outline-none focus:ring-2 focus:ring-ada-red/50"
-                placeholder="Seu nome"
               />
             </div>
+
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-ada-text-primary-dark mb-2">
-                Email
+              <label htmlFor="email" className="block text-sm font-medium text-ada-text-primary-light dark:text-ada-text-primary-dark mb-2">
+                E-mail
               </label>
               <input
-                id="email"
                 type="email"
-                required
+                id="email"
+                name="email"
                 value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="w-full px-4 py-3 bg-ada-section-dark border border-ada-red/20 rounded-lg text-ada-text-primary-dark placeholder-ada-text-primary-dark/50 focus:outline-none focus:ring-2 focus:ring-ada-red/50"
-                placeholder="seu@email.com"
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-ada-red/20 rounded-md focus:outline-none focus:ring-ada-red/50 focus:border-ada-red bg-white dark:bg-ada-bg-dark text-ada-text-primary-light dark:text-ada-text-primary-dark"
+                placeholder="Digite seu e-mail"
+                required
               />
             </div>
+
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-ada-text-primary-dark mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-ada-text-primary-light dark:text-ada-text-primary-dark mb-2">
                 Senha
               </label>
               <input
-                id="password"
                 type="password"
-                required
+                id="password"
+                name="password"
                 value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
-                className="w-full px-4 py-3 bg-ada-section-dark border border-ada-red/20 rounded-lg text-ada-text-primary-dark placeholder-ada-text-primary-dark/50 focus:outline-none focus:ring-2 focus:ring-ada-red/50"
-                placeholder="••••••••"
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-ada-red/20 rounded-md focus:outline-none focus:ring-ada-red/50 focus:border-ada-red bg-white dark:bg-ada-bg-dark text-ada-text-primary-light dark:text-ada-text-primary-dark"
+                placeholder="Digite sua senha"
+                required
               />
             </div>
+
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-ada-text-primary-dark mb-2">
-                Confirmar senha
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-ada-text-primary-light dark:text-ada-text-primary-dark mb-2">
+                Confirmar Senha
               </label>
               <input
-                id="confirmPassword"
                 type="password"
-                required
+                id="confirmPassword"
+                name="confirmPassword"
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                className="w-full px-4 py-3 bg-ada-section-dark border border-ada-red/20 rounded-lg text-ada-text-primary-dark placeholder-ada-text-primary-dark/50 focus:outline-none focus:ring-2 focus:ring-ada-red/50"
-                placeholder="••••••••"
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-ada-red/20 rounded-md focus:outline-none focus:ring-ada-red/50 focus:border-ada-red bg-white dark:bg-ada-bg-dark text-ada-text-primary-light dark:text-ada-text-primary-dark"
+                placeholder="Confirme sua senha"
+                required
               />
             </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-ada-red hover:bg-ada-red/90 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Criando conta...' : 'Criar conta'}
+            </button>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-ada-red text-white py-3 px-4 rounded-lg hover:bg-ada-red/90 transition-colors font-medium disabled:opacity-50"
-          >
-            {loading ? 'Criando conta...' : 'Criar conta'}
-          </button>
-
-          <div className="text-center">
-            <span className="text-ada-text-primary-dark/70">Já tem uma conta? </span>
-            <Link href="/login" className="text-ada-accent-dark hover:text-ada-red transition-colors font-medium">
-              Faça login
-            </Link>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-ada-text-primary-light dark:text-ada-text-primary-dark">
+              Já tem uma conta?{' '}
+              <Link href="/login" className="text-ada-red hover:underline font-medium">
+                Faça login
+              </Link>
+            </p>
           </div>
         </form>
       </div>

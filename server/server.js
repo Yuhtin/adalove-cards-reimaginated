@@ -18,9 +18,13 @@ db.connect()
 
     const authRoutes = require('./routes/authRoutes');
     const cardRoutes = require('./routes/cardRoutes');
+    const sectionRoutes = require('./routes/sectionRoutes');
+    const studentActivityRoutes = require('./routes/studentActivityRoutes');
 
     app.use('/auth', authRoutes);
     app.use('/cards', cardRoutes);
+    app.use('/sections', sectionRoutes);
+    app.use('/student-activities', studentActivityRoutes);
 
     // Middleware para lidar com erros de rota não encontrada
     app.use((req, res, next) => {

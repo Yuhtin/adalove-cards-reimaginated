@@ -4,7 +4,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:3000/:path*', // Proxy para seu servidor Express
+        destination: 'http://localhost:3000/:path*',
       },
     ]
   },
