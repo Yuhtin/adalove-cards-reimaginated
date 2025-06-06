@@ -218,11 +218,9 @@ export default function Dashboard() {
               Acompanhe seu progresso nos autoestudos
             </p>
           </div>
-          <Link href="/selfstudy">
-            <button className="bg-ada-red text-white px-6 py-3 rounded-xl hover:bg-ada-red/90 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2">
+          <Link href="/selfstudy" className="bg-ada-red text-white px-6 py-3 rounded-xl hover:bg-ada-red/90 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2 no-underline">
               Ver Todos os Autoestudos
               <ArrowRightIcon />
-            </button>
           </Link>
         </div>
 

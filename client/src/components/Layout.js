@@ -30,7 +30,7 @@ export default function Layout({ children }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/dashboard" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+            <Link href="/dashboard" className="flex items-center space-x-3 hover:opacity-80 transition-opacity no-underline">
               <div className="w-8 h-8 bg-ada-red rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">A</span>
               </div>
@@ -42,7 +42,7 @@ export default function Layout({ children }) {
             {/* Navigation */}
             <nav className="hidden md:flex space-x-8">
               <Link href="/dashboard" 
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors no-underline ${
                   pathname === '/dashboard' 
                     ? 'bg-ada-red text-white' 
                     : 'text-ada-text-primary-light dark:text-ada-text-primary-dark hover:text-ada-accent-light dark:hover:text-ada-accent-dark'
@@ -50,7 +50,7 @@ export default function Layout({ children }) {
                 Dashboard
               </Link>
               <Link href="/selfstudy" 
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors no-underline ${
                   pathname === '/selfstudy' 
                     ? 'bg-ada-red text-white' 
                     : 'text-ada-text-primary-light dark:text-ada-text-primary-dark hover:text-ada-accent-light dark:hover:text-ada-accent-dark'
