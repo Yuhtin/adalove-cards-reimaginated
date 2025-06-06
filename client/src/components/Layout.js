@@ -15,9 +15,12 @@ export default function Layout({ children }) {
     logout();
   };
 
-  // Evitar flash de conteúdo durante hidratação
   if (!mounted) {
-    return null;
+    return (
+      <div className="min-h-screen bg-ada-bg-light dark:bg-ada-bg-dark flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-ada-red/20 border-t-ada-red rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   return (
@@ -59,9 +62,12 @@ export default function Layout({ children }) {
             {/* User Menu */}
             <div className="flex items-center space-x-4">
               <button 
-                onClick={toggleTheme}
+                onClick={() => {
+                  console.log('Toggle theme clicked, current isDark:', isDark);
+                  toggleTheme();
+                }}
                 className="p-2 rounded-lg bg-ada-section-light dark:bg-ada-section-dark border border-ada-red/20 text-ada-text-primary-light dark:text-ada-text-primary-dark hover:bg-ada-red/10 transition-colors"
-                title="Alternar tema"
+                title={`Alternar para ${isDark ? 'modo claro' : 'modo escuro'}`}
               >
                 {isDark ? '☀️' : '🌙'}
               </button>

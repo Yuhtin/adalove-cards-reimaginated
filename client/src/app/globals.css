@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* Paleta de cores AdaLove */
 :root {
   /* Light Mode */
   --ada-red: #E30614;
@@ -71,9 +70,28 @@ html.dark body {
 
 /* Backgrounds com opacidade */
 .bg-ada-red\/10 { background-color: color-mix(in srgb, var(--ada-red) 10%, transparent); }
+.bg-ada-red\/5 { background-color: color-mix(in srgb, var(--ada-red) 5%, transparent); }
 .bg-red-500\/10 { background-color: color-mix(in srgb, #ef4444 10%, transparent); }
 .bg-green-500\/10 { background-color: color-mix(in srgb, #22c55e 10%, transparent); }
 
 /* Border com opacidade */
 .border-red-500\/20 { border-color: color-mix(in srgb, #ef4444 20%, transparent); }
 .border-green-500\/20 { border-color: color-mix(in srgb, #22c55e 20%, transparent); }
+
+/* Ícones SVG */
+.icon {
+  width: 1rem;
+  height: 1rem;
+  display: inline-block;
+  fill: currentColor;
+}
+
+.icon-lg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.icon-xl {
+  width: 2rem;
+  height: 2rem;
+}

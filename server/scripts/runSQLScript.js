@@ -15,7 +15,7 @@ const pool = new Pool({
 });
 
 const runSQLScript = async () => {
-  const filePath = path.join(__dirname, '01-init-database.sql');
+  const filePath = path.join(__dirname, 'create_database_structure.sql');
   const sql = fs.readFileSync(filePath, 'utf8');
 
   try {

@@ -1,8 +1,17 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const db = require('./config/db');
 const path = require('path');
+
+// Configuração do CORS
+app.use(cors({
+  origin: ['http://localhost:3001', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -14,17 +23,17 @@ db.connect()
     app.use(express.json());
 
     const userRoutes = require('./routes/userRoutes');
-    app.use('/users', userRoutes);
+    app.use('/api/users', userRoutes);
 
     const authRoutes = require('./routes/authRoutes');
     const cardRoutes = require('./routes/cardRoutes');
     const sectionRoutes = require('./routes/sectionRoutes');
     const studentActivityRoutes = require('./routes/studentActivityRoutes');
 
-    app.use('/auth', authRoutes);
-    app.use('/cards', cardRoutes);
-    app.use('/sections', sectionRoutes);
-    app.use('/student-activities', studentActivityRoutes);
+    app.use('/api/auth', authRoutes);
+    app.use('/api/cards', cardRoutes);
+    app.use('/api/sections', sectionRoutes);
+    app.use('/api/student-activities', studentActivityRoutes);
 
     // Middleware para lidar com erros de rota não encontrada
     app.use((req, res, next) => {
@@ -40,6 +49,7 @@ db.connect()
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
       console.log(`Servidor rodando na porta ${PORT}`);
+      console.log(`CORS configurado para aceitar requisições de http://localhost:3001`);
     });
   })
   .catch(err => {
