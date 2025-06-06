@@ -208,7 +208,6 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="space-y-8">
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-ada-text-primary-light dark:text-ada-text-primary-dark">
@@ -224,7 +223,6 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="Total de Atividades"
@@ -239,6 +237,7 @@ export default function Dashboard() {
             color="text-green-600 dark:text-green-400"
             icon={<CheckIcon />}
             description="Finalizadas"
+            trend={10}
           />
           <StatCard
             title="Em Andamento"
@@ -246,6 +245,7 @@ export default function Dashboard() {
             color="text-yellow-600 dark:text-yellow-400"
             icon={<ClockIcon />}
             description="Progredindo"
+            trend={-5}
           />
           <StatCard
             title="Pendentes"

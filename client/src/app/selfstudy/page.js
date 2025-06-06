@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { studentActivities, types, sections } from '../../lib/api';
 import Layout from '../../components/Layout';
+import TimelineView from '../../components/Timeline';
+import ThreeBackground from '../../components/ThreeBackground';
 
 // Componentes de ícones SVG
 const DownloadIcon = () => (
@@ -39,7 +41,7 @@ const ClearIcon = () => (
 
 const BookIcon = () => (
   <svg className="icon-xl" viewBox="0 0 20 20" fill="currentColor">
-    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V4.804z" />
+    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 005.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V4.804z" />
   </svg>
 );
 
@@ -100,6 +102,7 @@ export default function SelfStudy() {
     mandatory: ''
   });
   const [showImportModal, setShowImportModal] = useState(false);
+  const [viewMode, setViewMode] = useState('cards'); // 'cards', 'timeline', 'table'
   const router = useRouter();
 
   useEffect(() => {
@@ -187,6 +190,94 @@ export default function SelfStudy() {
     });
   };
 
+  const StudyCardView = ({ activity }) => (
+    <div className="group relative bg-gradient-to-br from-ada-section-light to-ada-bg-light dark:from-ada-section-dark dark:to-ada-bg-dark rounded-2xl p-6 border border-ada-red/10 hover:border-ada-red/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+      {/* Floating status indicator */}
+      <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full ${getStatusColor(activity.statusname)} border-4 border-white dark:border-gray-800 shadow-lg`}></div>
+      
+      {/* Priority badge */}
+      {activity.mandatory && (
+        <div className="absolute -top-1 -left-1 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+          ★ OBRIGATÓRIA
+        </div>
+      )}
+      
+      {/* Card content */}
+      <div className="space-y-4">
+        <div className="flex items-start justify-between">
+          <h3 className="font-bold text-lg text-ada-text-primary-light dark:text-ada-text-primary-dark group-hover:text-ada-red transition-colors">
+            {activity.activityname}
+          </h3>
+          <span className="text-xs bg-ada-red/10 text-ada-red px-2 py-1 rounded-full font-medium">
+            Semana {activity.weeknumber}
+          </span>
+        </div>
+        
+        <p className="text-sm text-ada-text-primary-light/70 dark:text-ada-text-primary-dark/70">
+          {activity.activitytypename}
+        </p>
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-ada-text-primary-light/60 dark:text-ada-text-primary-dark/60">
+            <UserIcon className="w-4 h-4" />
+            {activity.instructorname}
+          </div>
+          <div className="text-sm text-ada-text-primary-light/60 dark:text-ada-text-primary-dark/60">
+            {formatDate(activity.activitydate)}
+          </div>
+        </div>
+        
+        {/* Progress bar */}
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div 
+            className={`h-2 rounded-full transition-all duration-500 ${
+              activity.statusname === 'feito' ? 'bg-green-500 w-full' :
+              activity.statusname === 'fazendo' ? 'bg-yellow-500 w-1/2' :
+              'bg-gray-400 w-1/4'
+            }`}
+          ></div>
+        </div>
+        
+        {/* Action buttons */}
+        <div className="flex gap-2">
+          <select
+            value={activity.statustypeid}
+            onChange={(e) => updateActivityStatus(activity.id, parseInt(e.target.value))}
+            className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 border border-ada-red/20 rounded-lg text-sm focus:ring-2 focus:ring-ada-red/50 transition-all"
+          >
+            {statusTypes.map(status => (
+              <option key={status.id} value={status.id}>{status.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+
+  // View mode toggle
+  const ViewModeToggle = () => (
+    <div className="flex bg-ada-section-light dark:bg-ada-section-dark rounded-xl p-1 border border-ada-red/10">
+      {[
+        { mode: 'cards', icon: '⊞', label: 'Cards' },
+        { mode: 'timeline', icon: '⟼', label: 'Timeline' },
+        { mode: 'table', icon: '☰', label: 'Tabela' }
+      ].map(({ mode, icon, label }) => (
+        <button
+          key={mode}
+          onClick={() => setViewMode(mode)}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            viewMode === mode 
+              ? 'bg-ada-red text-white shadow-md' 
+              : 'text-ada-text-primary-light dark:text-ada-text-primary-dark hover:bg-ada-red/10'
+          }`}
+        >
+          <span className="mr-2">{icon}</span>
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+
   if (authLoading || loading) {
     return (
       <Layout>
@@ -202,126 +293,129 @@ export default function SelfStudy() {
 
   return (
     <Layout>
-      <div className="space-y-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-ada-text-primary-light dark:text-ada-text-primary-dark">
-              Autoestudos
-            </h1>
-            <p className="text-ada-text-primary-light/70 dark:text-ada-text-primary-dark/70 mt-1">
-              Gerencie suas atividades de autoestudo de forma eficiente
-            </p>
-          </div>
-          <button
-            onClick={() => setShowImportModal(true)}
-            className="bg-ada-red text-white px-6 py-3 rounded-xl hover:bg-ada-red/90 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-2"
-          >
-            <DownloadIcon />
-            Importar da AdaLove
-          </button>
+      {/* Three.js Background */}
+      <ThreeBackground />
+      
+      <div className="space-y-8 relative">
+        {/* Animated background elements */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-ada-red/5 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
-        {/* Filters Card */}
-        <div className="bg-ada-section-light dark:bg-ada-section-dark rounded-2xl p-6 shadow-lg border border-ada-red/10">
-          <h2 className="text-lg font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark mb-4 flex items-center gap-2">
-            <FilterIcon />
-            Filtros
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Header with improved design */}
+        <div className="relative z-10 bg-gradient-to-r from-ada-section-light to-ada-bg-light dark:from-ada-section-dark dark:to-ada-bg-dark rounded-3xl p-8 border border-ada-red/10 shadow-2xl">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
-              <label className="block text-sm font-medium text-ada-text-primary-light dark:text-ada-text-primary-dark mb-2">
-                Buscar
-              </label>
-              <input
-                type="text"
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-                placeholder="Nome da atividade..."
-                className="w-full px-4 py-3 bg-ada-bg-light dark:bg-ada-bg-dark border border-ada-red/20 rounded-xl text-ada-text-primary-light dark:text-ada-text-primary-dark placeholder-ada-text-primary-light/50 dark:placeholder-ada-text-primary-dark/50 focus:outline-none focus:ring-2 focus:ring-ada-red/50 focus:border-ada-red transition-all"
-              />
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-ada-red to-ada-accent-light bg-clip-text text-transparent">
+                Autoestudos ✨
+              </h1>
+              <p className="text-ada-text-primary-light/70 dark:text-ada-text-primary-dark/70 mt-2 text-lg">
+                Gerencie suas atividades com estilo e eficiência
+              </p>
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-ada-text-primary-light dark:text-ada-text-primary-dark mb-2">
-                Status
-              </label>
-              <select
-                value={filters.statusTypeId}
-                onChange={(e) => handleFilterChange('statusTypeId', e.target.value)}
-                className="w-full px-4 py-3 bg-ada-bg-light dark:bg-ada-bg-dark border border-ada-red/20 rounded-xl text-ada-text-primary-light dark:text-ada-text-primary-dark focus:outline-none focus:ring-2 focus:ring-ada-red/50 focus:border-ada-red transition-all"
+            <div className="flex items-center gap-4">
+              <ViewModeToggle />
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="bg-gradient-to-r from-ada-red to-ada-accent-light text-white px-6 py-3 rounded-xl hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 font-medium flex items-center gap-2"
               >
-                <option value="">Todos os status</option>
-                {statusTypes.map(status => (
-                  <option key={status.id} value={status.id}>{status.name}</option>
-                ))}
-              </select>
+                <DownloadIcon />
+                Importar da AdaLove
+              </button>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ada-text-primary-light dark:text-ada-text-primary-dark mb-2">
-                Tipo
-              </label>
-              <select
-                value={filters.activityTypeId}
-                onChange={(e) => handleFilterChange('activityTypeId', e.target.value)}
-                className="w-full px-4 py-3 bg-ada-bg-light dark:bg-ada-bg-dark border border-ada-red/20 rounded-xl text-ada-text-primary-light dark:text-ada-text-primary-dark focus:outline-none focus:ring-2 focus:ring-ada-red/50 focus:border-ada-red transition-all"
-              >
-                <option value="">Todos os tipos</option>
-                {activityTypes.map(type => (
-                  <option key={type.id} value={type.id}>{type.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ada-text-primary-light dark:text-ada-text-primary-dark mb-2">
-                Semana
-              </label>
-              <input
-                type="number"
-                value={filters.weekNumber}
-                onChange={(e) => handleFilterChange('weekNumber', e.target.value)}
-                placeholder="Número da semana"
-                className="w-full px-4 py-3 bg-ada-bg-light dark:bg-ada-bg-dark border border-ada-red/20 rounded-xl text-ada-text-primary-light dark:text-ada-text-primary-dark placeholder-ada-text-primary-light/50 dark:placeholder-ada-text-primary-dark/50 focus:outline-none focus:ring-2 focus:ring-ada-red/50 focus:border-ada-red transition-all"
-              />
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap gap-3 mt-6">
-            <button
-              onClick={applyFilters}
-              className="bg-ada-red text-white px-6 py-2.5 rounded-xl hover:bg-ada-red/90 transition-all duration-200 font-medium shadow-md hover:shadow-lg flex items-center gap-2"
-            >
-              <SearchIcon />
-              Filtrar
-            </button>
-            <button
-              onClick={clearFilters}
-              className="bg-ada-section-light dark:bg-ada-section-dark text-ada-text-primary-light dark:text-ada-text-primary-dark border border-ada-red/20 px-6 py-2.5 rounded-xl hover:bg-ada-red/10 transition-all duration-200 font-medium flex items-center gap-2"
-            >
-              <ClearIcon />
-              Limpar
-            </button>
           </div>
         </div>
 
-        {/* Activities Content */}
-        {error ? (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/20 rounded-2xl p-8 text-center shadow-lg">
-            <div className="flex justify-center mb-4">
-              <ExclamationIcon />
+        {/* Filters with glassmorphism effect */}
+        <div className="backdrop-blur-xl bg-white/10 dark:bg-black/10 rounded-2xl p-6 border border-white/20 shadow-xl">
+          {/* Filters Card */}
+          <div className="bg-ada-section-light dark:bg-ada-section-dark rounded-2xl p-6 shadow-lg border border-ada-red/10">
+            <h2 className="text-lg font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark mb-4 flex items-center gap-2">
+              <FilterIcon />
+              Filtros
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-ada-text-primary-light dark:text-ada-text-primary-dark mb-2">
+                  Buscar
+                </label>
+                <input
+                  type="text"
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  placeholder="Nome da atividade..."
+                  className="w-full px-4 py-3 bg-ada-bg-light dark:bg-ada-bg-dark border border-ada-red/20 rounded-xl text-ada-text-primary-light dark:text-ada-text-primary-dark placeholder-ada-text-primary-light/50 dark:placeholder-ada-text-primary-dark/50 focus:outline-none focus:ring-2 focus:ring-ada-red/50 focus:border-ada-red transition-all"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-ada-text-primary-light dark:text-ada-text-primary-dark mb-2">
+                  Status
+                </label>
+                <select
+                  value={filters.statusTypeId}
+                  onChange={(e) => handleFilterChange('statusTypeId', e.target.value)}
+                  className="w-full px-4 py-3 bg-ada-bg-light dark:bg-ada-bg-dark border border-ada-red/20 rounded-xl text-ada-text-primary-light dark:text-ada-text-primary-dark focus:outline-none focus:ring-2 focus:ring-ada-red/50 focus:border-ada-red transition-all"
+                >
+                  <option value="">Todos os status</option>
+                  {statusTypes.map(status => (
+                    <option key={status.id} value={status.id}>{status.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-ada-text-primary-light dark:text-ada-text-primary-dark mb-2">
+                  Tipo
+                </label>
+                <select
+                  value={filters.activityTypeId}
+                  onChange={(e) => handleFilterChange('activityTypeId', e.target.value)}
+                  className="w-full px-4 py-3 bg-ada-bg-light dark:bg-ada-bg-dark border border-ada-red/20 rounded-xl text-ada-text-primary-light dark:text-ada-text-primary-dark focus:outline-none focus:ring-2 focus:ring-ada-red/50 focus:border-ada-red transition-all"
+                >
+                  <option value="">Todos os tipos</option>
+                  {activityTypes.map(type => (
+                    <option key={type.id} value={type.id}>{type.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-ada-text-primary-light dark:text-ada-text-primary-dark mb-2">
+                  Semana
+                </label>
+                <input
+                  type="number"
+                  value={filters.weekNumber}
+                  onChange={(e) => handleFilterChange('weekNumber', e.target.value)}
+                  placeholder="Número da semana"
+                  className="w-full px-4 py-3 bg-ada-bg-light dark:bg-ada-bg-dark border border-ada-red/20 rounded-xl text-ada-text-primary-light dark:text-ada-text-primary-dark placeholder-ada-text-primary-light/50 dark:placeholder-ada-text-primary-dark/50 focus:outline-none focus:ring-2 focus:ring-ada-red/50 focus:border-ada-red transition-all"
+                />
+              </div>
             </div>
-            <p className="text-red-600 dark:text-red-400 text-lg font-medium mb-4">{error}</p>
-            <button 
-              onClick={fetchData}
-              className="bg-ada-red text-white px-6 py-3 rounded-xl hover:bg-ada-red/90 transition-all duration-200 font-medium flex items-center gap-2 mx-auto"
-            >
-              <RefreshIcon />
-              Tentar novamente
-            </button>
+            
+            <div className="flex flex-wrap gap-3 mt-6">
+              <button
+                onClick={applyFilters}
+                className="bg-ada-red text-white px-6 py-2.5 rounded-xl hover:bg-ada-red/90 transition-all duration-200 font-medium shadow-md hover:shadow-lg flex items-center gap-2"
+              >
+                <SearchIcon />
+                Filtrar
+              </button>
+              <button
+                onClick={clearFilters}
+                className="bg-ada-section-light dark:bg-ada-section-dark text-ada-text-primary-light dark:text-ada-text-primary-dark border border-ada-red/20 px-6 py-2.5 rounded-xl hover:bg-ada-red/10 transition-all duration-200 font-medium flex items-center gap-2"
+              >
+                <ClearIcon />
+                Limpar
+              </button>
+            </div>
           </div>
-        ) : activities.length === 0 ? (
+        </div>
+
+        {activities.length === 0 ? (
           <div className="bg-ada-section-light dark:bg-ada-section-dark rounded-2xl p-12 text-center shadow-lg border border-ada-red/10">
             <div className="flex justify-center mb-6 text-ada-text-primary-light/30 dark:text-ada-text-primary-dark/30">
               <BookIcon />
@@ -341,96 +435,118 @@ export default function SelfStudy() {
             </button>
           </div>
         ) : (
-          <div className="bg-ada-section-light dark:bg-ada-section-dark rounded-2xl shadow-lg border border-ada-red/10 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-ada-red/5 dark:bg-ada-red/10">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark">
-                      <div className="flex items-center gap-2">
-                        <DocumentIcon />
-                        Atividade
-                      </div>
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark">
-                      <div className="flex items-center gap-2">
-                        <UserIcon />
-                        Professor
-                      </div>
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark">
-                      <div className="flex items-center gap-2">
-                        <CalendarIcon />
-                        Semana
-                      </div>
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark">
-                      <div className="flex items-center gap-2">
-                        <CalendarIcon />
-                        Data
-                      </div>
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark">
-                      <div className="flex items-center gap-2">
-                        <ChartIcon />
-                        Status
-                      </div>
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark">
-                      <div className="flex items-center gap-2">
-                        <CogIcon />
-                        Ações
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-ada-red/10">
-                  {activities.map(activity => (
-                    <tr key={activity.id} className="hover:bg-ada-red/5 transition-all duration-200">
-                      <td className="px-6 py-5">
-                        <div>
-                          <h3 className="font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark mb-1">{activity.activityname}</h3>
-                          <p className="text-sm text-ada-text-primary-light/70 dark:text-ada-text-primary-dark/70">{activity.activitytypename}</p>
-                          {activity.mandatory && (
-                            <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 text-xs bg-ada-red/10 text-ada-red rounded-full font-medium">
-                              <StarIcon />
-                              Obrigatória
+          <div className="relative z-10">
+            {viewMode === 'cards' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {activities.map(activity => (
+                  <StudyCardView key={activity.id} activity={activity} />
+                ))}
+              </div>
+            )}
+            
+            {viewMode === 'timeline' && (
+              <TimelineView 
+                activities={activities} 
+                statusTypes={statusTypes}
+                updateActivityStatus={updateActivityStatus}
+                formatDate={formatDate}
+                getStatusColor={getStatusColor}
+              />
+            )}
+            
+            {viewMode === 'table' && (
+              <div className="bg-white/50 dark:bg-black/50 backdrop-blur-xl rounded-2xl border border-white/20 shadow-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-ada-red/5 dark:bg-ada-red/10">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark">
+                          <div className="flex items-center gap-2">
+                            <DocumentIcon />
+                            Atividade
+                          </div>
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark">
+                          <div className="flex items-center gap-2">
+                            <UserIcon />
+                            Professor
+                          </div>
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark">
+                          <div className="flex items-center gap-2">
+                            <CalendarIcon />
+                            Semana
+                          </div>
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark">
+                          <div className="flex items-center gap-2">
+                            <CalendarIcon />
+                            Data
+                          </div>
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark">
+                          <div className="flex items-center gap-2">
+                            <ChartIcon />
+                            Status
+                          </div>
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark">
+                          <div className="flex items-center gap-2">
+                            <CogIcon />
+                            Ações
+                          </div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-ada-red/10">
+                      {activities.map(activity => (
+                        <tr key={activity.id} className="hover:bg-ada-red/5 transition-all duration-200">
+                          <td className="px-6 py-5">
+                            <div>
+                              <h3 className="font-semibold text-ada-text-primary-light dark:text-ada-text-primary-dark mb-1">{activity.activityname}</h3>
+                              <p className="text-sm text-ada-text-primary-light/70 dark:text-ada-text-primary-dark/70">{activity.activitytypename}</p>
+                              {activity.mandatory && (
+                                <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 text-xs bg-ada-red/10 text-ada-red rounded-full font-medium">
+                                  <StarIcon />
+                                  Obrigatória
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-5 text-sm text-ada-text-primary-light dark:text-ada-text-primary-dark">
+                            {activity.instructorname}
+                          </td>
+                          <td className="px-6 py-5">
+                            <span className="inline-block px-3 py-1 text-sm bg-ada-red/10 text-ada-red rounded-full font-medium">
+                              Semana {activity.weeknumber}
                             </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-5 text-sm text-ada-text-primary-light dark:text-ada-text-primary-dark">
-                        {activity.instructorname}
-                      </td>
-                      <td className="px-6 py-5">
-                        <span className="inline-block px-3 py-1 text-sm bg-ada-red/10 text-ada-red rounded-full font-medium">
-                          Semana {activity.weeknumber}
-                        </span>
-                      </td>
-                      <td className="px-6 py-5 text-sm text-ada-text-primary-light dark:text-ada-text-primary-dark">
-                        {formatDate(activity.activitydate)}
-                      </td>
-                      <td className="px-6 py-5">
-                        <span className={`inline-block px-3 py-1 text-xs rounded-full font-medium ${getStatusColor(activity.statusname)}`}>
-                          {activity.statusname}
-                        </span>
-                      </td>
-                      <td className="px-6 py-5">
-                        <select
-                          value={activity.statustypeid}
-                          onChange={(e) => updateActivityStatus(activity.id, parseInt(e.target.value))}
-                          className="px-3 py-2 bg-ada-bg-light dark:bg-ada-bg-dark border border-ada-red/20 rounded-lg text-ada-text-primary-light dark:text-ada-text-primary-dark focus:outline-none focus:ring-2 focus:ring-ada-red/50 text-sm"
-                        >
-                          {statusTypes.map(status => (
-                            <option key={status.id} value={status.id}>{status.name}</option>
-                          ))}
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                          </td>
+                          <td className="px-6 py-5 text-sm text-ada-text-primary-light dark:text-ada-text-primary-dark">
+                            {formatDate(activity.activitydate)}
+                          </td>
+                          <td className="px-6 py-5">
+                            <span className={`inline-block px-3 py-1 text-xs rounded-full font-medium ${getStatusColor(activity.statusname)}`}>
+                              {activity.statusname}
+                            </span>
+                          </td>
+                          <td className="px-6 py-5">
+                            <select
+                              value={activity.statustypeid}
+                              onChange={(e) => updateActivityStatus(activity.id, parseInt(e.target.value))}
+                              className="px-3 py-2 bg-ada-bg-light dark:bg-ada-bg-dark border border-ada-red/20 rounded-lg text-ada-text-primary-light dark:text-ada-text-primary-dark focus:outline-none focus:ring-2 focus:ring-ada-red/50 text-sm"
+                            >
+                              {statusTypes.map(status => (
+                                <option key={status.id} value={status.id}>{status.name}</option>
+                              ))}
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
