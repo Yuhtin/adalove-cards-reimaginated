@@ -1,11 +1,14 @@
-"use client"
+'use client'
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, User, Lock, Mail, ArrowRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { auth } from '../../lib/api';
 
-const Register = ({ onRegister, onNavigateToLogin }) => {
+export default function RegisterPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -15,24 +18,49 @@ const Register = ({ onRegister, onNavigateToLogin }) => {
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (formData.password !== formData.confirmPassword) {
-      alert('As senhas não coincidem');
+      setError('As senhas não coincidem');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('A senha deve ter pelo menos 6 caracteres');
       return;
     }
 
     setIsLoading(true);
+    setError('');
 
-    setTimeout(() => {
-      onRegister(formData.name);
+    try {
+      // Extract username from email (before @)
+      const username = formData.email.split('@')[0];
+      
+      const { user } = await auth.register({
+        username,
+        email: formData.email,
+        password: formData.password
+      });
+      
+      // Redirect to dashboard after successful registration
+      router.push('/dashboard');
+    } catch (error) {
+      setError(error.response?.data?.message || 'Erro ao criar conta. Tente novamente.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const navigateToLogin = () => {
+    router.push('/login');
   };
 
   return (
@@ -70,6 +98,12 @@ const Register = ({ onRegister, onNavigateToLogin }) => {
 
             <CardContent className="relative pt-2 px-8 pb-8">
               <form onSubmit={handleSubmit} className="space-y-5">
+                {error && (
+                  <div className="bg-red-500/20 border border-red-500/30 rounded-2xl p-4 text-red-300 text-sm font-medium animate-fade-in">
+                    {error}
+                  </div>
+                )}
+                
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-white/90">Nome completo</label>
                   <div className="relative group">
@@ -170,7 +204,7 @@ const Register = ({ onRegister, onNavigateToLogin }) => {
                 <p className="mt-6 text-sm text-white/70">
                   Já tem uma conta?{' '}
                   <button
-                    onClick={onNavigateToLogin}
+                    onClick={navigateToLogin}
                     className="text-ada-red hover:text-ada-red/80 font-semibold hover:underline transition-colors"
                   >
                     Faça login aqui
@@ -183,6 +217,4 @@ const Register = ({ onRegister, onNavigateToLogin }) => {
       </div>
     </div>
   );
-};
-
-export default Register;
+}

@@ -137,19 +137,58 @@ const importCards = async (req, res) => {
   try {
     const { cards } = req.body;
     const userId = req.user.id;
-    
+
     if (!cards || !Array.isArray(cards)) {
       return res.status(400).json({ error: 'Cards array is required' });
     }
-    
+
     const importedCards = await Card.bulkImportFromExternalSource(cards, userId);
-    
+
     res.status(201).json({
       message: `${importedCards.length} cards imported successfully`,
       importedCount: importedCards.length,
       cards: importedCards
     });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const importFromAdaLove = async (req, res) => {
+  try {
+    const adaloveData = req.body;
+    const userId = req.user.id;
+
+    // Validate AdaLove JSON structure
+    if (!adaloveData.activities || !Array.isArray(adaloveData.activities)) {
+      return res.status(400).json({
+        error: 'Invalid AdaLove JSON format. Expected "activities" array.'
+      });
+    }
+
+    // Extract activities from the official AdaLove response
+    const activities = adaloveData.activities;
+
+    // Import each activity
+    const importedCards = await Card.bulkImportFromExternalSource(activities, userId);
+
+    // Extract section info for context
+    const sectionInfo = adaloveData.section ? {
+      sectionCaption: adaloveData.section.sectionCaption,
+      projectCaption: adaloveData.section.projectCaption,
+      advisorName: adaloveData.section.advisorName
+    } : null;
+
+    res.status(201).json({
+      message: `Successfully imported ${importedCards.length} activities from AdaLove`,
+      importedCount: importedCards.length,
+      totalActivities: activities.length,
+      skippedCount: activities.length - importedCards.length,
+      sectionInfo: sectionInfo,
+      cards: importedCards
+    });
+  } catch (error) {
+    console.error('AdaLove import error:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -183,6 +222,7 @@ module.exports = {
   getCardsByFilters,
   getCardStats,
   importCards,
+  importFromAdaLove,
   getAllActivityTypes,
   getAllStatusTypes
 };

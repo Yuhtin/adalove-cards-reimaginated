@@ -43,6 +43,12 @@ export const auth = {
 
   async register(userData) {  
     const response = await api.post('/auth/register', userData);
+
+    const { token, user } = response.data;
+    
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('user', JSON.stringify(user));
+
     return response.data;
   },
 
@@ -209,6 +215,11 @@ export const cards = {
 
   async import(data) {
     const response = await api.post('/cards/import', data);
+    return response.data;
+  },
+
+  async importFromAdaLove(adaloveData) {
+    const response = await api.post('/cards/import-adalove', adaloveData);
     return response.data;
   }
 };

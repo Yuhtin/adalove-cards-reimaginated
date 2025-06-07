@@ -16,5 +16,6 @@ router.put('/:id', cardController.updateCard);
 router.patch('/:id/status', cardController.updateCardStatus);
 router.delete('/:id', cardController.deleteCard);
 router.post('/import', cardController.importCards);
+router.post('/import-adalove', cardController.importFromAdaLove);
 
 module.exports = router;

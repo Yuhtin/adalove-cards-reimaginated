@@ -61,25 +61,36 @@ class Card {
    */
   static async importFromExternalSource(externalData, userId) {
     let activityTypeId = await this._getOrCreateActivityType(externalData.type);
-    
+
     if (!activityTypeId) {
-      return null;
+      console.warn(`Unknown activity type: ${externalData.type} for activity: ${externalData.caption}`);
+      // Don't skip, use fallback type
+      activityTypeId = await this._getOrCreateActivityType(null); // Will create "Outros" type
     }
 
     let statusTypeId = await this._mapExternalStatus(externalData.status);
 
-    let date = externalData.date || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    // Handle date - can be null in official JSON
+    let date = externalData.date ? new Date(externalData.date) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    // Clean HTML from description
+    const description = externalData.description ?
+      externalData.description.replace(/<[^>]*>/g, '').trim() :
+      'Descrição não disponível';
+
+    // Choose best weight value available
+    const weightValue = externalData.gradeWeight || externalData.conceptWeight || externalData.checkWeight || 0;
 
     const cardData = {
       userId: userId,
-      name: externalData.caption,
-      instructorName: externalData.professorName,
+      name: externalData.caption || 'Atividade sem título',
+      instructorName: externalData.professorName || 'Professor não informado',
       activityTypeId: activityTypeId,
-      description: externalData.description || 'This is a default description',
+      description: description,
       mandatory: externalData.required === 1,
-      relatedLinks: externalData.basicActivityURL,
-      weekNumber: this._extractWeekFromData(externalData) || 1,
-      weightValue: externalData.checkWeight || externalData.conceptWeight || externalData.gradeWeight || -1,
+      relatedLinks: externalData.basicActivityURL || null,
+      weekNumber: this._extractWeekFromData(externalData),
+      weightValue: weightValue,
       statusTypeId: statusTypeId,
       date: date
     };
@@ -92,20 +103,23 @@ class Card {
     let iconUrl;
 
     switch (externalType) {
+      case 1:
+        activityName = 'Apresentação';
+        iconUrl = '/images/icons/presentation.png';
+        break;
       case 2:
+        activityName = 'Instrução';
+        iconUrl = '/images/icons/instruction.png';
+        break;
+      case 11:
         activityName = 'Autoestudo';
         iconUrl = '/images/icons/self-study.png';
         break;
-      case 4:
-        activityName = 'Desenvolvimento de Projetos';
-        iconUrl = '/images/icons/project.png';
-        break;
-      case 5:
-        activityName = 'Encontro de Instrução';
-        iconUrl = '/images/icons/practical-activity.png';
-        break;
       default:
-        return null;
+        // Fallback for unknown types
+        activityName = 'Outros';
+        iconUrl = '/images/icons/other.png';
+        break;
     }
 
     const typeResult = await db.query('SELECT id FROM activity_types WHERE name = $1', [activityName]);
@@ -149,7 +163,21 @@ class Card {
   }
 
   static _extractWeekFromData(externalData) {
-    // TODO
+    // Extract week from sort field or date
+    if (externalData.sort) {
+      // Assuming sort represents chronological order, convert to week
+      return Math.ceil(externalData.sort / 7) || 1;
+    }
+
+    if (externalData.date) {
+      // Calculate week based on date relative to course start
+      const activityDate = new Date(externalData.date);
+      const courseStartDate = new Date('2025-04-22'); // From section.sectionDate
+      const diffTime = Math.abs(activityDate - courseStartDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return Math.ceil(diffDays / 7) || 1;
+    }
+
     return 1; // Default week
   }
 

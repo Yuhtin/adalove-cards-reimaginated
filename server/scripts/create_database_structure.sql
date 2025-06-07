@@ -82,10 +82,11 @@ CREATE INDEX IF NOT EXISTS idx_student_activities_activity ON student_activities
 CREATE INDEX IF NOT EXISTS idx_student_activities_status ON student_activities(statusTypeId);
 CREATE INDEX IF NOT EXISTS idx_student_activities_uuid ON student_activities(studentActivityUuid);
 
-INSERT INTO activity_types (name, iconUrl) VALUES 
+INSERT INTO activity_types (name, iconUrl) VALUES
+('Apresentação', '/images/icons/presentation.png'),
+('Instrução', '/images/icons/instruction.png'),
 ('Autoestudo', '/images/icons/self-study.png'),
-('Desenvolvimento de Projetos', '/images/icons/project.png'),
-('Encontro de Instrução', '/images/icons/practical-activity.png')
+('Outros', '/images/icons/other.png')
 ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO status_types (name, iconUrl) VALUES 
