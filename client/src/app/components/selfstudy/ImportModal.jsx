@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Download, X, Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/button';
-import { cards } from '../../../lib/api';
+import { sections } from '../../../lib/api';
 
 const ImportModal = ({ isOpen, onClose, onImportSuccess }) => {
   const [file, setFile] = useState(null);
@@ -37,11 +37,11 @@ const ImportModal = ({ isOpen, onClose, onImportSuccess }) => {
       const adaloveData = JSON.parse(fileContent);
 
       // Validate the JSON structure
-      if (!adaloveData.activities || !Array.isArray(adaloveData.activities)) {
-        throw new Error('Formato de arquivo inválido. Esperado: arquivo JSON da AdaLove com array "activities"');
+      if (!adaloveData.section || !adaloveData.activities || !Array.isArray(adaloveData.activities)) {
+        throw new Error('Formato de arquivo inválido. Esperado: arquivo JSON da AdaLove com "section" e array "activities"');
       }
 
-      const response = await cards.importFromAdaLove(adaloveData);
+      const response = await sections.importFromAdaLove(adaloveData);
       setResult(response);
 
       if (onImportSuccess) {

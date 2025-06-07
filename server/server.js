@@ -26,12 +26,10 @@ db.connect()
     app.use('/api/users', userRoutes);
 
     const authRoutes = require('./routes/authRoutes');
-    const cardRoutes = require('./routes/cardRoutes');
     const sectionRoutes = require('./routes/sectionRoutes');
     const studentActivityRoutes = require('./routes/studentActivityRoutes');
 
     app.use('/api/auth', authRoutes);
-    app.use('/api/cards', cardRoutes);
     app.use('/api/sections', sectionRoutes);
     app.use('/api/student-activities', studentActivityRoutes);
 

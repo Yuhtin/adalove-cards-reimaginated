@@ -7,7 +7,8 @@ import StatsCard from '../components/dashboard/StatsCard';
 import ProgressBar from '../components/dashboard/ProgressBar';
 import RecentActivities from '../components/dashboard/RecentActivities';
 import ModernNavbar from '../components/layout/ModernNavbar';
-import { cards, auth } from '../../lib/api';
+import SettingsModal from '../components/modals/SettingsModal';
+import { studentActivities, auth } from '../../lib/api';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [username, setUsername] = useState('Usuário');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     // Check authentication
@@ -41,8 +43,8 @@ export default function DashboardPage() {
         
         // Fetch stats and recent activities in parallel
         const [statsResponse, activitiesResponse] = await Promise.all([
-          cards.getStats(),
-          cards.getAll({ limit: 4, sortBy: 'date', sortOrder: 'desc' })
+          studentActivities.getStats(),
+          studentActivities.getAll({ limit: 4, sortBy: 'date', sortOrder: 'desc' })
         ]);
 
         setStats(statsResponse);
@@ -50,10 +52,10 @@ export default function DashboardPage() {
         // Transform activities to match expected format
         const transformedActivities = activitiesResponse.map(activity => ({
           id: activity.id,
-          name: activity.name,
-          professor: activity.instructorName,
-          date: new Date(activity.date).toLocaleDateString('pt-BR'),
-          status: activity.statusName.toLowerCase()
+          name: activity.activityname || activity.activityName,
+          professor: activity.instructorname || activity.instructorName,
+          date: new Date(activity.activitydate || activity.activityDate).toLocaleDateString('pt-BR'),
+          status: (activity.statusname || activity.statusName).toLowerCase()
         }));
         
         setRecentActivities(transformedActivities);
@@ -81,8 +83,7 @@ export default function DashboardPage() {
   };
 
   const handleSettingsClick = () => {
-    // TODO: Implement settings modal or page
-    console.log('Settings clicked');
+    setIsSettingsOpen(true);
   };
 
   const handleLogout = () => {
@@ -232,6 +233,13 @@ export default function DashboardPage() {
           </p>
         </div>
       </footer>
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        username={username}
+      />
     </div>
   );
 }

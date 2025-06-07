@@ -1,3 +1,6 @@
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 DROP TABLE IF EXISTS activity_types CASCADE;
 DROP TABLE IF EXISTS status_types CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
@@ -18,15 +21,15 @@ CREATE TABLE IF NOT EXISTS status_types (
 );
 
 CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR(32) PRIMARY KEY DEFAULT replace(uuid_generate_v4()::text, '-', ''),
     username VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     iconUrl VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS sections (
-    id SERIAL PRIMARY KEY,
-    sectionUuid VARCHAR(255) UNIQUE NOT NULL,
+    id VARCHAR(32) PRIMARY KEY DEFAULT replace(uuid_generate_v4()::text, '-', ''),
+    sectionUuid VARCHAR(32) UNIQUE NOT NULL,
     sectionCaption VARCHAR(255) NOT NULL,
     sectionRepository TEXT,
     sectionDate DATE NOT NULL,
@@ -40,9 +43,9 @@ CREATE TABLE IF NOT EXISTS sections (
 );
 
 CREATE TABLE IF NOT EXISTS activities (
-    id SERIAL PRIMARY KEY,
-    activityUuid VARCHAR(255) UNIQUE NOT NULL,
-    sectionId INTEGER REFERENCES sections(id) ON DELETE CASCADE,
+    id VARCHAR(32) PRIMARY KEY DEFAULT replace(uuid_generate_v4()::text, '-', ''),
+    activityUuid VARCHAR(32) UNIQUE NOT NULL,
+    sectionId VARCHAR(32) REFERENCES sections(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     description TEXT,
     instructorName VARCHAR(255),
@@ -57,10 +60,10 @@ CREATE TABLE IF NOT EXISTS activities (
 );
 
 CREATE TABLE IF NOT EXISTS student_activities (
-    id SERIAL PRIMARY KEY,
-    studentActivityUuid VARCHAR(255) UNIQUE NOT NULL,
-    userId INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    activityId INTEGER REFERENCES activities(id) ON DELETE CASCADE,
+    id VARCHAR(32) PRIMARY KEY DEFAULT replace(uuid_generate_v4()::text, '-', ''),
+    studentActivityUuid VARCHAR(32) UNIQUE NOT NULL,
+    userId VARCHAR(32) REFERENCES users(id) ON DELETE CASCADE,
+    activityId VARCHAR(32) REFERENCES activities(id) ON DELETE CASCADE,
     statusTypeId INTEGER REFERENCES status_types(id) DEFAULT 1,
     activityNotes TEXT DEFAULT '',
     activityRating INTEGER DEFAULT 0,

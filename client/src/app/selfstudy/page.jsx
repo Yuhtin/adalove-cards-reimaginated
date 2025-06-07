@@ -13,7 +13,8 @@ import EmptyState from '../components/selfstudy/EmptyState';
 import ActivityDetailModal from '../components/selfstudy/ActivityDetailModal';
 import ImportModal from '../components/selfstudy/ImportModal';
 import ModernNavbar from '../components/layout/ModernNavbar';
-import { cards, auth } from '../../lib/api';
+import SettingsModal from '../components/modals/SettingsModal';
+import { studentActivities, auth } from '../../lib/api';
 
 const mockActivities = [
   {
@@ -68,6 +69,7 @@ export default function SelfStudyPage() {
   });
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [username, setUsername] = useState('Usuário');
 
   useEffect(() => {
@@ -86,21 +88,21 @@ export default function SelfStudyPage() {
     const fetchActivities = async () => {
       try {
         setLoading(true);
-        const response = await cards.getAll();
-        
+        const response = await studentActivities.getAll();
+
         // Transform backend data to frontend format
         const transformedActivities = response.map(activity => ({
           id: activity.id,
-          name: activity.name,
-          professor: activity.instructorName,
-          date: activity.date,
-          week: activity.weekNumber,
+          name: activity.activityname || activity.activityName,
+          professor: activity.instructorname || activity.instructorName,
+          date: activity.activitydate || activity.activityDate,
+          week: activity.weeknumber || activity.weekNumber,
           isRequired: activity.mandatory,
-          url: activity.relatedLinks,
-          type: activity.activityTypeName,
-          status: activity.statusName
+          url: activity.basicactivityurl || activity.basicActivityURL,
+          type: activity.activitytypename || activity.activityTypeName,
+          status: activity.statusname || activity.statusName
         }));
-        
+
         setActivities(transformedActivities);
       } catch (error) {
         console.error('Error fetching activities:', error);
@@ -163,7 +165,7 @@ export default function SelfStudyPage() {
       
       const backendStatus = statusMap[newStatus] || newStatus;
       
-      await cards.updateStatus(activityId, { status: backendStatus });
+      await studentActivities.updateStatus(activityId, { status: backendStatus });
       
       // Update local state
       setActivities(prev => prev.map(activity => 
@@ -193,17 +195,17 @@ export default function SelfStudyPage() {
     // Refresh activities after successful import
     const fetchActivities = async () => {
       try {
-        const response = await cards.getAll();
+        const response = await studentActivities.getAll();
         const transformedActivities = response.map(activity => ({
           id: activity.id,
-          name: activity.name,
-          professor: activity.instructorName,
-          date: activity.date,
-          week: activity.weekNumber,
+          name: activity.activityname || activity.activityName,
+          professor: activity.instructorname || activity.instructorName,
+          date: activity.activitydate || activity.activityDate,
+          week: activity.weeknumber || activity.weekNumber,
           isRequired: activity.mandatory,
-          url: activity.relatedLinks,
-          type: activity.activityTypeName,
-          status: activity.statusName
+          url: activity.basicactivityurl || activity.basicActivityURL,
+          type: activity.activitytypename || activity.activityTypeName,
+          status: activity.statusname || activity.statusName
         }));
         setActivities(transformedActivities);
       } catch (error) {
@@ -224,8 +226,7 @@ export default function SelfStudyPage() {
   };
 
   const handleSettingsClick = () => {
-    // TODO: Implement settings modal or page
-    console.log('Settings clicked');
+    setIsSettingsOpen(true);
   };
 
   const handleLogout = () => {
@@ -400,6 +401,12 @@ export default function SelfStudyPage() {
           isOpen={showImportModal}
           onClose={() => setShowImportModal(false)}
           onImportSuccess={handleImportSuccess}
+        />
+
+        <SettingsModal
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          username={username}
         />
       </div>
     </div>

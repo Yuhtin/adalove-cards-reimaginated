@@ -1,0 +1,57 @@
+{
+  "section": {
+    "sectionUuid": "512bd5950e2cda7bbe67d36b3e2c2df3",
+    "sectionCaption": "2025-1B-T17",
+    "sectionRepository": "https://drive.google.com/drive/folders/1DB2t03ItwSQuTaFBOd1zeS-Kq_wwp6GI?usp=sharing",
+    "sectionDate": "2025-04-22",
+    "sectionType": "Graduação",
+    "advisorName": "Fabiana Martins de Oliveira",
+    "projectCaption": "GRAD IN02 - 2025-1B",
+    "projectDescription": "Desenvolvimento de Aplicação Web",
+    "sectionStatus": "open"
+  },
+  "activities": [
+    {
+      "studentActivityUuid": "d25849c45ffb46848130b385ec54d159",
+      "status": 3,
+      "sort": 6,
+      "activityNotes": "",
+      "activityRating": 0,
+      "type": 2,
+      "checkWeight": 0,
+      "conceptWeight": 0,
+      "gradeWeight": 0,
+      "studyQuestion": "",
+      "studyAnswer": "",
+      "caption": "Banco de Dados I - Conceitos, Modelos e SQL Básico",
+      "description": "Nosso plano é: se vamos criar uma aplicação web completa, precisamos começar pela estrutura que vai definir tudo daqui pra frente - o banco de dados.",
+      "basicActivityURL": "",
+      "required": 1,
+      "date": "2025-04-29T07:00:00.000Z",
+      "professorName": "Bryan Kano Ferreira",
+      "activityUuid": "8dc624a33b714a9577c1fdb70a0cab10",
+      "studentUuid": "a595c8f321c7be77b124e6743b25ebcb"
+    },
+    {
+      "studentActivityUuid": "9d1e9f4b8e014dd1b98482d4237de030",
+      "status": 3,
+      "sort": 8,
+      "activityNotes": "",
+      "activityRating": 0,
+      "type": 2,
+      "checkWeight": 0,
+      "conceptWeight": 0,
+      "gradeWeight": 0,
+      "studyQuestion": "",
+      "studyAnswer": "",
+      "caption": "Front-end 3 - CSS e Javascript",
+      "description": "Finalmente vamos deixar as coisas bonitas! CSS é para trazer, como o próprio nome diz, \"estilo\"...",
+      "basicActivityURL": "",
+      "required": 1,
+      "date": "2025-06-04T07:00:00.000Z",
+      "professorName": "Bryan Kano Ferreira",
+      "activityUuid": "2986ae0312ee8ed90ed2edc38279173e",
+      "studentUuid": "a595c8f321c7be77b124e6743b25ebcb"
+    }
+  ]
+}

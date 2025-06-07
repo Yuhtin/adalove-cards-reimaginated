@@ -7,8 +7,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'AdaLove 2 - Plataforma de Autoestudos',
-  description: 'Plataforma reimaginada para gerenciamento de autoestudos do Instituto de Tecnologia e Liderança (Inteli)',
+  title: 'AdaLove 2',
+  description: 'AdaLove reimaginada para gerenciamento de autoestudos do Instituto de Tecnologia e Liderança (Inteli)',
 }
 
 export default function RootLayout({ children }) {

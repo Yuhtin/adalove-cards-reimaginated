@@ -126,6 +126,26 @@ const getStudentActivityStats = async (req, res) => {
   }
 };
 
+const getAllActivityTypes = async (req, res) => {
+  try {
+    const ActivityType = require('../models/activityTypeModel');
+    const types = await ActivityType.getAll();
+    res.status(200).json(types);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getAllStatusTypes = async (req, res) => {
+  try {
+    const StatusType = require('../models/statusTypeModel');
+    const types = await StatusType.getAll();
+    res.status(200).json(types);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getAllStudentActivities,
   getStudentActivityById,
@@ -135,5 +155,7 @@ module.exports = {
   updateStudentActivityStatus,
   deleteStudentActivity,
   getStudentActivitiesByFilters,
-  getStudentActivityStats
-}; 
+  getStudentActivityStats,
+  getAllActivityTypes,
+  getAllStatusTypes
+};

@@ -160,69 +160,17 @@ export const sections = {
 
 export const types = {
   async getActivityTypes() {
-    const response = await api.get('/cards/activity-types');
+    const response = await api.get('/student-activities/activity-types');
     return response.data;
   },
 
   async getStatusTypes() {
-    const response = await api.get('/cards/status-types');
+    const response = await api.get('/student-activities/status-types');
     return response.data;
   }
 };
 
-export const cards = {
-  async getAll(filters = {}) {
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        params.append(key, value);
-      }
-    });
-    
-    const response = await api.get(`/cards?${params}`);
-    return response.data;
-  },
-
-  async getById(id) {
-    const response = await api.get(`/cards/${id}`);
-    return response.data;
-  },
-
-  async updateStatus(id, statusTypeId) {
-    const response = await api.patch(`/cards/${id}/status`, { statusTypeId });
-    return response.data;
-  },
-
-  async update(id, data) {
-    const response = await api.put(`/cards/${id}`, data);
-    return response.data;
-  },
-
-  async create(data) {
-    const response = await api.post('/cards', data);
-    return response.data;
-  },
-
-  async delete(id) {
-    const response = await api.delete(`/cards/${id}`);
-    return response.data;
-  },
-
-  async getStats() {
-    const response = await api.get('/cards/stats');
-    return response.data;
-  },
-
-  async import(data) {
-    const response = await api.post('/cards/import', data);
-    return response.data;
-  },
-
-  async importFromAdaLove(adaloveData) {
-    const response = await api.post('/cards/import-adalove', adaloveData);
-    return response.data;
-  }
-};
+// Removed cards API - use studentActivities instead
 
 export const users = {
   async getAll() {

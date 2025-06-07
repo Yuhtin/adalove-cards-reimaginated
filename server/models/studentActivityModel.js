@@ -102,14 +102,17 @@ class StudentActivity {
   }
 
   static async create(data) {
+    // Generate UUID without dashes if not provided
+    const studentActivityUuid = data.studentActivityUuid || this._generateUuidWithoutDashes();
+
     const result = await db.query(
-      `INSERT INTO student_activities 
-      (studentActivityUuid, userId, activityId, statusTypeId, activityNotes, 
-       activityRating, weightValue, studyQuestion, studyAnswer) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+      `INSERT INTO student_activities
+      (studentActivityUuid, userId, activityId, statusTypeId, activityNotes,
+       activityRating, weightValue, studyQuestion, studyAnswer)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *`,
       [
-        data.studentActivityUuid,
+        studentActivityUuid,
         data.userId,
         data.activityId,
         data.statusTypeId || 1, // Default to "To Do"
@@ -125,6 +128,12 @@ class StudentActivity {
       return await this.getById(result.rows[0].id);
     }
     return null;
+  }
+
+  static _generateUuidWithoutDashes() {
+    // Generate a UUID and remove dashes to match AdaLove format
+    const { v4: uuidv4 } = require('uuid');
+    return uuidv4().replace(/-/g, '');
   }
 
   static async update(id, data) {
@@ -183,12 +192,41 @@ class StudentActivity {
       studyAnswer: externalData.studyAnswer || ''
     };
 
+    // Check if student activity already exists by UUID
+    const existingByUuid = await this.getByStudentActivityUuid(externalData.studentActivityUuid);
+    if (existingByUuid) {
+      return await this.update(existingByUuid.id, studentActivityData);
+    }
+
+    // Check if student activity exists by user and activity
     const existing = await this.getByUserAndActivity(userId, activityId);
     if (existing) {
       return await this.update(existing.id, studentActivityData);
     }
 
     return await this.create(studentActivityData);
+  }
+
+  static async getByStudentActivityUuid(studentActivityUuid) {
+    const result = await db.query(`
+      SELECT sa.*,
+             a.name as activityName,
+             a.description as activityDescription,
+             a.instructorName,
+             a.mandatory,
+             a.date as activityDate,
+             a.weekNumber,
+             st.name as statusName,
+             st.iconUrl as statusIconUrl,
+             at.name as activityTypeName,
+             at.iconUrl as activityTypeIconUrl
+      FROM student_activities sa
+      JOIN activities a ON sa.activityId = a.id
+      JOIN status_types st ON sa.statusTypeId = st.id
+      JOIN activity_types at ON a.activityTypeId = at.id
+      WHERE sa.studentActivityUuid = $1
+    `, [studentActivityUuid]);
+    return result.rows[0];
   }
 
   static _mapExternalStatus(externalStatus) {
@@ -206,7 +244,7 @@ class StudentActivity {
 
   static async getStudentActivityStats(userId) {
     const query = `
-      SELECT 
+      SELECT
         COUNT(*) as totalActivities,
         SUM(CASE WHEN sa.statusTypeId = 1 THEN 1 ELSE 0 END) as todoCount,
         SUM(CASE WHEN sa.statusTypeId = 2 THEN 1 ELSE 0 END) as doingCount,
@@ -219,7 +257,18 @@ class StudentActivity {
     `;
 
     const result = await db.query(query, [userId]);
-    return result.rows[0];
+    const rawStats = result.rows[0];
+
+    // Transform the data to match frontend expectations
+    return {
+      total: parseInt(rawStats.totalactivities) || 0,
+      completed: parseInt(rawStats.donecount) || 0,
+      inProgress: parseInt(rawStats.doingcount) || 0,
+      pending: parseInt(rawStats.todocount) || 0,
+      // Additional stats that might be useful
+      mandatory: parseInt(rawStats.mandatorycount) || 0,
+      totalWeeks: parseInt(rawStats.totalweeks) || 0
+    };
   }
 
   static async getActivitiesByFilters(filters) {
