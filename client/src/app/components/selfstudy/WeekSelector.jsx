@@ -1,5 +1,5 @@
 import { Calendar, ChevronRight, CheckCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 const WeekSelector = ({ onWeekSelect, activitiesByWeek }) => {
   const weeks = Object.keys(activitiesByWeek).map(Number).sort();

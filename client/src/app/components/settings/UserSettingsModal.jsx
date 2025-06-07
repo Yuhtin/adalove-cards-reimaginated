@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import { User, Lock, Upload, Download, X, Camera } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 const UserSettingsModal = ({
   isOpen,
   onClose,

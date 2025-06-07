@@ -1,5 +1,5 @@
 import { Download, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '../ui/button';
 
 const ImportModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;

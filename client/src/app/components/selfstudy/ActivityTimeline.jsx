@@ -1,7 +1,7 @@
 import { Calendar, User, Clock, ExternalLink } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const ActivityTimeline = ({ activities, onStatusChange, onActivityClick }) => {
   const getStatusConfig = (status) => {

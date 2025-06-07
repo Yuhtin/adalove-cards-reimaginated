@@ -1,7 +1,5 @@
-"use client"
+import Index from './pages/Index'
 
-import Dashboard from '@/components/pages/Dashboard'
-
-export default function HomePage() {
-  return <Dashboard />
+export default function Page() {
+  return <Index />
 }

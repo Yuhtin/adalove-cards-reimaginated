@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { User, Moon, Sun, Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '../ui/button';
 
 const Header = ({ currentPage, onPageChange, isDark, onThemeToggle, username = "Estudante" }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

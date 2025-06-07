@@ -1,14 +1,14 @@
 import { useState, useMemo } from 'react';
-import WeekSelector from '@/components/selfstudy/WeekSelector';
-import SelfStudyHeader from '@/components/selfstudy/SelfStudyHeader';
-import ViewToggle from '@/components/selfstudy/ViewToggle';
-import FilterCard from '@/components/selfstudy/FilterCard';
-import ActivityCard from '@/components/selfstudy/ActivityCard';
-import ActivityTimeline from '@/components/selfstudy/ActivityTimeline';
-import ActivityTable from '@/components/selfstudy/ActivityTable';
-import EmptyState from '@/components/selfstudy/EmptyState';
-import ActivityDetailModal from '@/components/selfstudy/ActivityDetailModal';
-import ImportModal from '@/components/selfstudy/ImportModal';
+import WeekSelector from '../components/selfstudy/WeekSelector';
+import SelfStudyHeader from '../components/selfstudy/SelfStudyHeader';
+import ViewToggle from '../components/selfstudy/ViewToggle';
+import FilterCard from '../components/selfstudy/FilterCard';
+import ActivityCard from '../components/selfstudy/ActivityCard';
+import ActivityTimeline from '../components/selfstudy/ActivityTimeline';
+import ActivityTable from '../components/selfstudy/ActivityTable';
+import EmptyState from '../components/selfstudy/EmptyState';
+import ActivityDetailModal from '../components/selfstudy/ActivityDetailModal';
+import ImportModal from '../components/selfstudy/ImportModal';
 
 const mockActivities = [
   {
@@ -48,9 +48,9 @@ const mockActivities = [
 
 const SelfStudy = () => {
   const [activities] = useState(mockActivities);
-  const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
+  const [selectedWeek, setSelectedWeek] = useState(null);
   const [showWeekSelector, setShowWeekSelector] = useState(true);
-  const [viewMode, setViewMode] = useState<'cards' | 'timeline' | 'table'>('cards');
+  const [viewMode, setViewMode] = useState('cards');
   const [filters, setFilters] = useState({
     search: '',
     status: 'Todos',
@@ -58,7 +58,7 @@ const SelfStudy = () => {
     week: '',
     required: 'Todos'
   });
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState(null);
   const [showImportModal, setShowImportModal] = useState(false);
 
   const activitiesByWeek = useMemo(() => {

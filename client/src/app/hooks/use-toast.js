@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 
 const TOAST_LIMIT = 1
@@ -131,7 +133,7 @@ function toast({ ...props }) {
 }
 
 function useToast() {
-  const [state, setState] = React.useState<State>(memoryState)
+  const [state, setState] = React.useState(memoryState)
 
   React.useEffect(() => {
     listeners.push(setState)

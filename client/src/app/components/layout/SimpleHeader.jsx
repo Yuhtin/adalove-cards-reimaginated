@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { User, Settings, Moon, Sun, LogOut } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '../ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 
 const SimpleHeader = ({ 
   isDark, 
@@ -14,7 +14,6 @@ const SimpleHeader = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Prevent body scroll when popover is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';

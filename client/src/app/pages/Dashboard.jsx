@@ -1,11 +1,10 @@
 import { Book, CheckCircle, Clock, ClipboardList } from 'lucide-react';
-import StatsCard from '@/components/dashboard/StatsCard';
-import ProgressBar from '@/components/dashboard/ProgressBar';
-import RecentActivities from '@/components/dashboard/RecentActivities';
+import StatsCard from '../components/dashboard/StatsCard';
+import ProgressBar from '../components/dashboard/ProgressBar';
+import RecentActivities from '../components/dashboard/RecentActivities';
 
 
 const Dashboard = ({ username }) => {
-  // Mock data - em uma aplicação real, viria de uma API
   const stats = {
     total: 24,
     completed: 8,
@@ -95,7 +94,6 @@ const Dashboard = ({ username }) => {
         />
       </div>
 
-      {/* Progress and Recent Activities */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <ProgressBar
           completed={stats.completed}

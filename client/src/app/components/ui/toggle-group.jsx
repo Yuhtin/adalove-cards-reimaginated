@@ -2,8 +2,8 @@ import * as React from "react"
 import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group"
 import { cva } from "class-variance-authority"
 
-import { cn } from "@/lib/utils"
-import { toggleVariants } from "@/components/ui/toggle"
+import { cn } from "../../libs/utils"
+import { toggleVariants } from "./toggle"
 
 const toggleGroupVariants = cva("flex items-center justify-center gap-1")
 

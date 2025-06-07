@@ -1,7 +1,9 @@
+"use client"
+
 import { useState } from 'react';
-import { Eye, EyeOff, User, Lock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Eye, EyeOff, User, Lock, ArrowRight } from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 
 const Login = ({ onLogin, onNavigateToRegister }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,6 +22,7 @@ const Login = ({ onLogin, onNavigateToRegister }) => {
   };
 
   return (
+
     <div 
       className="min-h-screen relative bg-cover bg-center bg-no-repeat"
       style={{
@@ -27,84 +30,108 @@ const Login = ({ onLogin, onNavigateToRegister }) => {
       }}
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-      
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50 shadow-2xl animate-fade-in">
-          <CardHeader className="space-y-4 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-500 rounded-xl flex items-center justify-center mx-auto shadow-lg">
-              <span className="text-white font-bold text-2xl">A</span>
-            </div>
-            
-            <CardTitle className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-              Bem-vindo ao <span className="bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">AdaLove 2</span>
-            </CardTitle>
-            
-            <p className="text-gray-600 dark:text-gray-300">
-              Acesse sua conta para gerenciar seus autoestudos
-            </p>
-          </CardHeader>
-          
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Email</label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors text-gray-900 dark:text-gray-100"
-                    placeholder="seu.email@inteli.edu.br"
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Senha</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-12 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors text-gray-900 dark:text-gray-100"
-                    placeholder="••••••••"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-              
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white shadow-lg"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Entrando...' : 'Entrar'}
-              </Button>
-            </form>
-            
-            <div className="mt-6 text-center space-y-2">
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Não tem uma conta?{' '}
-                <button
-                  onClick={onNavigateToRegister}
-                  className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:underline font-medium"
-                >
-                  Cadastre-se
-                </button>
+
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
+        <div className="text-center mb-12 animate-fade-in">
+          <div className="relative inline-block mb-6">
+            <div className="absolute inset-0 bg-gradient-to-r from-ada-red to-ada-accent rounded-3xl blur-xl opacity-50 animate-pulse"></div>
+          </div>
+
+          <h1 className="text-5xl font-bold text-white mb-3 tracking-tight">
+            AdaLove<span className="bg-gradient-to-r from-ada-red to-ada-accent bg-clip-text text-transparent"> 2</span>
+          </h1>
+        </div>
+
+        <div className="w-full max-w-md">
+          <Card className="bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl animate-scale-in hover:bg-white/10 transition-all duration-500 rounded-3xl overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-ada-red/10 to-ada-accent/10 opacity-0 hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
+
+            <CardHeader className="relative text-center pb-6 pt-8">
+              <CardTitle className="text-2xl font-bold text-white mb-3 tracking-wide">
+                Bem-vindo de volta
+              </CardTitle>
+              <p className="text-slate-400 text-sm font-medium">
+                Acesse sua conta para continuar sua jornada
               </p>
-            </div>
-          </CardContent>
+            </CardHeader>
+          
+            <CardContent className="relative pt-2 px-8 pb-8">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-white/90 tracking-wide">Email</label>
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-ada-red/20 to-ada-accent/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
+                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-ada-red transition-all duration-300 z-10" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="relative w-full pl-12 pr-4 py-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl focus:border-ada-red/50 focus:bg-white/10 transition-all duration-300 text-white placeholder-slate-400 outline-none hover:bg-white/8"
+                      placeholder="seu.email@inteli.edu.br"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-white/90 tracking-wide">Senha</label>
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-ada-red/20 to-ada-accent/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-ada-red transition-all duration-300 z-10" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="relative w-full pl-12 pr-14 py-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl focus:border-ada-red/50 focus:bg-white/10 transition-all duration-300 text-white placeholder-slate-400 outline-none hover:bg-white/8"
+                      placeholder="••••••••"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-ada-red transition-all duration-300 z-10"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="relative group mt-8">
+                  <div className="absolute inset-0 bg-gradient-to-r from-ada-red to-ada-accent rounded-2xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <Button
+                    type="submit"
+                    className="relative w-full bg-gradient-to-r from-ada-red to-ada-accent hover:from-ada-red/90 hover:to-ada-accent/90 text-white font-bold py-4 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-300 border border-white/20 hover:border-white/30 tracking-wide"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center justify-center space-x-3">
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <span className="font-semibold">Entrando...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center space-x-2">
+                        <span>Entrar</span>
+                        <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                      </div>
+                    )}
+                  </Button>
+                </div>
+              </form>
+
+              <div className="mt-10 text-center">
+                <p className="text-sm text-white-400 font-medium">
+                  Não tem uma conta?{' '}
+                  <button
+                    onClick={onNavigateToRegister}
+                    className="text-ada-accent hover:underline transition-all duration-300 ml-1"
+                  >
+                    Cadastre-se aqui
+                  </button>
+                </p>
+              </div>
+            </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );
