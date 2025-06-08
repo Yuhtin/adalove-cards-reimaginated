@@ -94,7 +94,7 @@ export default function SelfStudyPage() {
         const transformedActivities = response.map(activity => ({
           id: activity.id,
           name: activity.activityname || activity.activityName,
-          professor: activity.instructorname || activity.instructorName,
+          professor: activity.instructorname || activity.instructorName || 'Professor não informado',
           date: activity.activitydate || activity.activityDate,
           week: activity.weeknumber || activity.weekNumber,
           isRequired: activity.mandatory,
@@ -199,7 +199,7 @@ export default function SelfStudyPage() {
         const transformedActivities = response.map(activity => ({
           id: activity.id,
           name: activity.activityname || activity.activityName,
-          professor: activity.instructorname || activity.instructorName,
+          professor: activity.instructorname || activity.instructorName || 'Professor não informado',
           date: activity.activitydate || activity.activityDate,
           week: activity.weeknumber || activity.weekNumber,
           isRequired: activity.mandatory,

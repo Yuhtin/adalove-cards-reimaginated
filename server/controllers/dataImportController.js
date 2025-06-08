@@ -130,10 +130,12 @@ const processImportData = async (jobId, data, userId) => {
 
   try {
     let activities = [];
+    let sectionData = null;
 
-    // Extract activities from official AdaLove 1.0 export
+    // Extract activities and section from official AdaLove 1.0 export
     if (data.activities && Array.isArray(data.activities)) {
       activities = data.activities;
+      sectionData = data.section;
     } else if (Array.isArray(data)) {
       activities = data;
     } else {
@@ -142,6 +144,12 @@ const processImportData = async (jobId, data, userId) => {
 
     console.log(`Processing ${activities.length} activities for user ${userId}`);
 
+    // First, process section data if available
+    let sectionId = null;
+    if (sectionData) {
+      sectionId = await processOfficialSection(sectionData);
+    }
+
     // Process user activities in chunks
     const chunkSize = 50;
     for (let i = 0; i < activities.length; i += chunkSize) {
@@ -149,7 +157,7 @@ const processImportData = async (jobId, data, userId) => {
 
       for (const activity of chunk) {
         // Process individual user activity from official export
-        await processOfficialActivity(activity, userId);
+        await processOfficialActivity(activity, userId, sectionId);
         recordsProcessed++;
 
         // Update progress every 5 records
@@ -168,44 +176,182 @@ const processImportData = async (jobId, data, userId) => {
   }
 };
 
+// Process section data from official AdaLove 1.0 export
+const processOfficialSection = async (sectionData) => {
+  // Sanitize all string fields
+  const sanitizedSection = {};
+  for (const [key, value] of Object.entries(sectionData)) {
+    sanitizedSection[key] = typeof value === 'string' ? sanitizeInput(value) : value;
+  }
+
+  const sectionId = uuidv4();
+  const sectionUuid = sanitizedSection.sectionUuid || uuidv4();
+
+  // Insert or update section
+  const sectionQuery = `
+    INSERT INTO sections (
+      id, sectionUuid, sectionCaption, sectionRepository, sectionDate, sectionType,
+      advisorUuid, advisorName, advisorGender, projectUuid, projectCaption, projectDescription,
+      sectionStatus, sectionActive, sectionHoursOne, sectionHoursTwo, sectionHoursThree,
+      sectionToleranceOne, sectionToleranceTwo, sectionToleranceThree,
+      sectionAttendanceTimeOne, sectionAttendanceTimeTwo, sectionAttendanceTimeThree,
+      sectionIsRecovery, sectionLastUpdate, sectionLastSync, checkRestrictions,
+      sectionHideAttendance, sectionAttendanceForAll, assistantAdvisorUuid, assistantAdvisorName
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31)
+    ON CONFLICT (sectionUuid) DO UPDATE SET
+      sectionCaption = EXCLUDED.sectionCaption,
+      sectionRepository = EXCLUDED.sectionRepository,
+      sectionDate = EXCLUDED.sectionDate,
+      sectionType = EXCLUDED.sectionType,
+      advisorName = EXCLUDED.advisorName,
+      projectCaption = EXCLUDED.projectCaption,
+      projectDescription = EXCLUDED.projectDescription,
+      updatedAt = CURRENT_TIMESTAMP
+    RETURNING id
+  `;
+
+  const result = await db.query(sectionQuery, [
+    sectionId,
+    sectionUuid,
+    sanitizedSection.sectionCaption || 'Seção Importada',
+    sanitizedSection.sectionRepository || '',
+    sanitizedSection.sectionDate ? new Date(sanitizedSection.sectionDate) : new Date(),
+    sanitizedSection.sectionType || 'Graduação',
+    sanitizedSection.advisorUuid || null,
+    sanitizedSection.advisorName || '',
+    sanitizedSection.advisorGender || '',
+    sanitizedSection.projectUuid || null,
+    sanitizedSection.projectCaption || '',
+    sanitizedSection.projectDescription || '',
+    sanitizedSection.sectionStatus || 'open',
+    sanitizedSection.sectionActive || 1,
+    sanitizedSection.sectionHoursOne || 0,
+    sanitizedSection.sectionHoursTwo || 0,
+    sanitizedSection.sectionHoursThree || 0,
+    sanitizedSection.sectionToleranceOne || 0,
+    sanitizedSection.sectionToleranceTwo || 0,
+    sanitizedSection.sectionToleranceThree || 0,
+    sanitizedSection.sectionAttendanceTimeOne || null,
+    sanitizedSection.sectionAttendanceTimeTwo || null,
+    sanitizedSection.sectionAttendanceTimeThree || null,
+    sanitizedSection.sectionIsRecovery || 0,
+    sanitizedSection.sectionLastUpdate ? new Date(sanitizedSection.sectionLastUpdate) : null,
+    sanitizedSection.sectionLastSync ? new Date(sanitizedSection.sectionLastSync) : null,
+    sanitizedSection.checkRestrictions || 0,
+    sanitizedSection.sectionHideAttendance || 0,
+    sanitizedSection.sectionAttendanceForAll || 0,
+    sanitizedSection.assistantAdvisorUuid || null,
+    sanitizedSection.assistantAdvisorName || ''
+  ]);
+
+  console.log(`Processed section: ${sanitizedSection.sectionCaption}`);
+  return result.rows[0].id;
+};
+
 // Process individual activity from official AdaLove 1.0 export
-const processOfficialActivity = async (activity, userId) => {
+const processOfficialActivity = async (activity, userId, sectionId = null) => {
   // Sanitize all string fields
   const sanitizedActivity = {};
   for (const [key, value] of Object.entries(activity)) {
     sanitizedActivity[key] = typeof value === 'string' ? sanitizeInput(value) : value;
   }
 
-  // Generate unique IDs for the activity
-  const studentActivityUuid = sanitizedActivity.studentActivityUuid || uuidv4();
-  const activityId = sanitizedActivity.activityUuid || uuidv4();
+  // Generate unique IDs
+  const activityId = uuidv4();
+  const activityUuid = sanitizedActivity.activityUuid || uuidv4();
   const studentActivityId = uuidv4();
+  const studentActivityUuid = sanitizedActivity.studentActivityUuid || uuidv4();
 
-  // Insert into student_activities table using correct column names
-  const query = `
-    INSERT INTO student_activities (id, studentactivityuuid, userid, activityid, statustypeid, activitynotes, activityrating, weightvalue, studyquestion, studyanswer)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    ON CONFLICT (studentactivityuuid) DO UPDATE SET
-      activitynotes = EXCLUDED.activitynotes,
-      activityrating = EXCLUDED.activityrating,
-      weightvalue = EXCLUDED.weightvalue,
-      studyquestion = EXCLUDED.studyquestion,
-      studyanswer = EXCLUDED.studyanswer,
-      updatedat = CURRENT_TIMESTAMP
+  // Determine activity type based on the type field
+  let activityTypeId = 2; // Default to "Instrução"
+  if (sanitizedActivity.type) {
+    switch (parseInt(sanitizedActivity.type)) {
+      case 1: activityTypeId = 1; break; // Apresentação
+      case 2: activityTypeId = 2; break; // Instrução
+      case 11: activityTypeId = 3; break; // Autoestudo
+      default: activityTypeId = 4; break; // Outros
+    }
+  }
+
+  // First, insert or update the activity
+  const activityQuery = `
+    INSERT INTO activities (
+      id, activityUuid, sectionId, name, description, instructorName, instructorGender,
+      assistantInstructorName, assistantInstructorUuid, activityTypeId, mandatory, date,
+      basicActivityURL, weekNumber, sort, exam, makeup_exam, required
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+    ON CONFLICT (activityUuid) DO UPDATE SET
+      name = EXCLUDED.name,
+      description = EXCLUDED.description,
+      instructorName = EXCLUDED.instructorName,
+      date = EXCLUDED.date,
+      updatedAt = CURRENT_TIMESTAMP
+    RETURNING id
   `;
 
-  // Map official AdaLove 1.0 fields to AdaLove 2.0 schema
-  await db.query(query, [
-    studentActivityId, // id (unique for each student activity record)
-    studentActivityUuid, // studentactivityuuid (from official export)
-    userId, // userid (current logged user)
-    activityId, // activityid (from official export)
-    parseInt(sanitizedActivity.status) || 1, // statustypeid (status from export)
-    sanitizedActivity.activityNotes || `Importado: ${sanitizedActivity.caption || 'Atividade'}`, // activitynotes
-    parseInt(sanitizedActivity.activityRating) || 0, // activityrating
-    parseFloat(sanitizedActivity.gradeWeight || sanitizedActivity.checkWeight || sanitizedActivity.conceptWeight) || 1.0, // weightvalue
-    sanitizedActivity.studyQuestion || '', // studyquestion
-    sanitizedActivity.studyAnswer || '' // studyanswer
+  const activityResult = await db.query(activityQuery, [
+    activityId,
+    activityUuid,
+    sectionId,
+    sanitizedActivity.caption || 'Atividade Importada',
+    sanitizedActivity.description || '',
+    sanitizedActivity.professorName || '',
+    sanitizedActivity.professorGender || '',
+    sanitizedActivity.assistantProfessorName || null,
+    sanitizedActivity.assistantProfessorUuid || null,
+    activityTypeId,
+    sanitizedActivity.required === 1 || sanitizedActivity.mandatory === true,
+    sanitizedActivity.date ? new Date(sanitizedActivity.date) : new Date(),
+    sanitizedActivity.basicActivityURL || null,
+    1, // weekNumber - default
+    sanitizedActivity.sort || 0,
+    sanitizedActivity.exam || 0,
+    sanitizedActivity.makeup_exam || 0,
+    sanitizedActivity.required || 1
+  ]);
+
+  const finalActivityId = activityResult.rows[0].id;
+
+  // Then, insert or update the student activity
+  const studentActivityQuery = `
+    INSERT INTO student_activities (
+      id, studentActivityUuid, userId, activityId, studentUuid, statusTypeId,
+      activityNotes, activityRating, weightValue, studyQuestion, studyAnswer,
+      attendance1, attendance2, attendance3, checkResult, conceptResult, gradeResult,
+      folder, studentActivityId
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+    ON CONFLICT (studentActivityUuid) DO UPDATE SET
+      activityNotes = EXCLUDED.activityNotes,
+      activityRating = EXCLUDED.activityRating,
+      weightValue = EXCLUDED.weightValue,
+      studyQuestion = EXCLUDED.studyQuestion,
+      studyAnswer = EXCLUDED.studyAnswer,
+      updatedAt = CURRENT_TIMESTAMP
+  `;
+
+  await db.query(studentActivityQuery, [
+    studentActivityId,
+    studentActivityUuid,
+    userId,
+    finalActivityId,
+    sanitizedActivity.studentUuid || null,
+    parseInt(sanitizedActivity.status) || 1,
+    sanitizedActivity.activityNotes || `Importado: ${sanitizedActivity.caption || 'Atividade'}`,
+    parseInt(sanitizedActivity.activityRating) || 0,
+    parseFloat(sanitizedActivity.gradeWeight || sanitizedActivity.checkWeight || sanitizedActivity.conceptWeight) || 0,
+    sanitizedActivity.studyQuestion || '',
+    sanitizedActivity.studyAnswer || '',
+    parseInt(sanitizedActivity.attendance1) || -1,
+    parseInt(sanitizedActivity.attendance2) || -1,
+    parseInt(sanitizedActivity.attendance3) || -1,
+    parseInt(sanitizedActivity.checkResult) || -1,
+    parseInt(sanitizedActivity.conceptResult) || -1,
+    sanitizedActivity.gradeResult || '-1.0',
+    sanitizedActivity.folder || null,
+    parseInt(sanitizedActivity.studentActivityId) || null
   ]);
 
   console.log(`Processed activity: ${sanitizedActivity.caption} for user ${userId}`);
@@ -357,7 +503,6 @@ const getImportHistory = async (req, res) => {
 const cancelImport = async (req, res) => {
   try {
     const { jobId } = req.params;
-    const userId = req.user.id;
 
     const job = await updateImportJob(jobId, 'cancelled');
 
@@ -380,6 +525,7 @@ module.exports = {
   createImportJob,
   updateImportJob,
   processImportData,
+  processOfficialSection,
   processOfficialActivity,
   importData,
   getImportStatus,
