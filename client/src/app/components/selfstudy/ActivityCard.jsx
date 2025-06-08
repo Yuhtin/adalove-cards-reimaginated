@@ -1,127 +1,121 @@
-import { User, Calendar, Clock, ExternalLink, BookOpen } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
+import { User, Calendar, Clock, ExternalLink, BookOpen, Database } from 'lucide-react';
 
 const ActivityCard = ({ activity, onStatusChange, onActivityClick, index }) => {
   const getStatusConfig = (status) => {
     switch (status) {
       case 'Feito':
-        return { 
-          color: 'bg-green-500', 
-          badge: 'bg-green-500/10 text-green-600 border-green-500/20', 
+        return {
+          color: 'bg-green-500',
+          badge: 'bg-green-500/10 text-green-600 border-green-500/20',
           label: 'Feito'
         };
       case 'Fazendo':
-        return { 
-          color: 'bg-yellow-500', 
-          badge: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20', 
+        return {
+          color: 'bg-yellow-500',
+          badge: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
           label: 'Fazendo'
         };
       default:
-        return { 
-          color: 'bg-primary', 
-          badge: 'bg-primary/10 text-primary border-primary/20', 
+        return {
+          color: 'bg-slate-500',
+          badge: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
           label: 'A Fazer'
         };
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  const formatTime = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   const statusConfig = getStatusConfig(activity.status);
 
   return (
-    <div 
-      className="bg-card rounded-2xl p-6 border border-border hover:shadow-lg transition-all duration-300 animate-fade-in relative group cursor-pointer min-h-[280px]"
+    <div
+      className="glassmorphism rounded-2xl p-6 border border-white/10 backdrop-blur-xl hover:border-ada-red/30 transition-all duration-300 animate-fade-in cursor-pointer group"
       style={{ animationDelay: `${index * 100}ms` }}
       onClick={() => onActivityClick(activity)}
     >
-      {/* Header */}
+      {/* Header with Icon and Week */}
       <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <BookOpen className="h-5 w-5 text-primary" />
-          <span className="text-sm font-medium text-muted-foreground">Autoestudo</span>
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-ada-red to-ada-accent rounded-xl flex items-center justify-center">
+            <BookOpen className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <Calendar className="h-4 w-4 text-slate-400" />
+              <span className="text-sm font-medium text-slate-300">Semana {activity.week || '01'}</span>
+            </div>
+          </div>
         </div>
         <div className={`w-3 h-3 rounded-full ${statusConfig.color}`} />
       </div>
 
       {/* Title */}
-      <h3 className="font-bold text-lg leading-tight mb-3 text-foreground pr-4">
+      <h3 className="font-bold text-lg leading-tight mb-4 text-white group-hover:text-ada-red-light transition-colors">
         {activity.name}
       </h3>
 
+      {/* Date and Time */}
+      <div className="flex items-center space-x-4 mb-4">
+        <div className="flex items-center space-x-2 text-sm text-slate-400">
+          <Clock className="h-4 w-4" />
+          <span>{formatDate(activity.date)} - {formatTime(activity.date) || '10:00h'}</span>
+        </div>
+      </div>
+
       {/* Professor */}
-      <div className="flex items-center text-sm text-muted-foreground mb-3">
-        <User className="h-4 w-4 mr-2" />
-        {activity.professor}
+      <div className="flex items-center space-x-2 mb-6 text-sm text-slate-400">
+        <User className="h-4 w-4" />
+        <span>{activity.professor}</span>
       </div>
 
-      {/* Status Badges */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {!activity.isRequired && (
-          <Badge variant="destructive" className="bg-primary text-primary-foreground text-xs">
-            Atividade não ponderada
-          </Badge>
-        )}
-        {activity.isRequired && (
-          <Badge variant="outline" className="border-foreground text-foreground text-xs">
-            Atividade obrigatória
-          </Badge>
-        )}
-      </div>
-
-      {/* Description */}
-      <div className="mb-4">
-        <h4 className="font-semibold text-sm mb-2 flex items-center">
-          <span className="w-4 h-4 mr-2">📝</span>
-          Descrição
-        </h4>
-        <p className="text-sm text-muted-foreground line-clamp-2">
-          Compreender o conceito e importância da atividade para o desenvolvimento acadêmico e profissional.
-        </p>
-      </div>
-
-      {/* Footer */}
-      <div className="absolute bottom-6 left-6 right-6">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center text-xs text-muted-foreground">
-            <Calendar className="h-3 w-3 mr-1" />
-            {activity.date}
-          </div>
+      {/* Footer with Status */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
           {activity.url && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-auto p-1 text-primary hover:text-accent"
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 window.open(activity.url, '_blank');
               }}
+              className="p-2 bg-white/5 hover:bg-ada-red/20 rounded-lg transition-colors"
             >
-              <ExternalLink className="h-4 w-4" />
-            </Button>
+              <ExternalLink className="h-4 w-4 text-slate-400 hover:text-ada-red" />
+            </button>
           )}
         </div>
 
         {/* Status Dropdown */}
-        <Select 
-          value={activity.status} 
-          onValueChange={(value) => {
-            event?.stopPropagation();
-            onStatusChange(activity.id, value);
+        <select
+          value={activity.status}
+          onChange={(e) => {
+            e.stopPropagation();
+            onStatusChange(activity.id, e.target.value);
           }}
+          onClick={(e) => e.stopPropagation()}
+          className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-ada-red/50 focus:border-ada-red/50 transition-all"
         >
-          <SelectTrigger 
-            className="w-full border-border focus:border-primary"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-popover border border-border">
-            <SelectItem value="A Fazer">A Fazer</SelectItem>
-            <SelectItem value="Fazendo">Fazendo</SelectItem>
-            <SelectItem value="Feito">Feito</SelectItem>
-          </SelectContent>
-        </Select>
+          <option value="A Fazer">A Fazer</option>
+          <option value="Fazendo">Fazendo</option>
+          <option value="Feito">Feito</option>
+        </select>
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import WeekSelector from '../components/selfstudy/WeekSelector';
 import SelfStudyHeader from '../components/selfstudy/SelfStudyHeader';
 import ViewToggle from '../components/selfstudy/ViewToggle';
-import FilterCard from '../components/selfstudy/FilterCard';
+import HorizontalFilters from '../components/selfstudy/HorizontalFilters';
 import ActivityCard from '../components/selfstudy/ActivityCard';
 import ActivityTimeline from '../components/selfstudy/ActivityTimeline';
 import ActivityTable from '../components/selfstudy/ActivityTable';
@@ -387,20 +387,22 @@ export default function SelfStudyPage() {
           onBackToWeeks={handleBackToWeeks}
         />
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="lg:w-1/4">
-            <FilterCard
-              filters={filters}
-              onFilterChange={handleFilterChange}
-              onClearFilters={handleClearFilters}
-              onImportClick={() => setShowImportModal(true)}
-            />
+        <div className="space-y-6">
+          {/* View Toggle */}
+          <div className="flex justify-center">
+            <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
           </div>
 
-          <div className="lg:w-3/4 space-y-6">
-            <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
-            {renderActivitiesView()}
-          </div>
+          {/* Horizontal Filters */}
+          <HorizontalFilters
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onClearFilters={handleClearFilters}
+            onImportClick={() => setShowImportModal(true)}
+          />
+
+          {/* Activities Content */}
+          {renderActivitiesView()}
         </div>
 
         <ActivityDetailModal

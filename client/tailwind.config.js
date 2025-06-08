@@ -44,6 +44,7 @@ module.exports = {
         },
         'ada-red': {
           DEFAULT: '#E30614',
+          light: '#FF6B7A',
           50: '#FEF2F2',
           100: '#FEE2E2',
           500: '#E30614',

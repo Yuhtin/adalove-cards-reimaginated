@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Download, X, Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react';
-import { Button } from '../ui/button';
 import { sections } from '../../../lib/api';
 
 const ImportModal = ({ isOpen, onClose, onImportSuccess }) => {
@@ -103,12 +102,13 @@ const ImportModal = ({ isOpen, onClose, onImportSuccess }) => {
                 </div>
               </div>
 
-              <Button
+              <button
                 onClick={handleClose}
-                className="w-full bg-gradient-to-r from-ada-red to-ada-accent hover:from-ada-red/80 hover:to-ada-accent/80 text-white"
+                className="w-full px-6 py-2 bg-gradient-to-r from-ada-red to-ada-accent hover:from-ada-red/80 hover:to-ada-accent/80 rounded-xl text-white transition-all duration-200 flex items-center justify-center space-x-2"
               >
-                Fechar
-              </Button>
+                <CheckCircle className="h-4 w-4" />
+                <span>Fechar</span>
+              </button>
             </div>
           ) : (
             <div className="space-y-6">
@@ -166,28 +166,30 @@ const ImportModal = ({ isOpen, onClose, onImportSuccess }) => {
               </div>
 
               <div className="flex space-x-3">
-                <Button
-                  variant="outline"
+                <button
                   onClick={handleClose}
-                  className="flex-1 border-ada-red/20 hover:bg-ada-red/10"
                   disabled={importing}
+                  className="flex-1 px-6 py-2 bg-white/5 border border-white/20 hover:bg-white/10 hover:border-white/30 rounded-xl text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancelar
-                </Button>
-                <Button
+                </button>
+                <button
                   onClick={handleImport}
                   disabled={!file || importing}
-                  className="flex-1 bg-gradient-to-r from-ada-red to-ada-accent hover:from-ada-red/80 hover:to-ada-accent/80 text-white disabled:opacity-50"
+                  className="flex-1 px-6 py-2 bg-gradient-to-r from-ada-red to-ada-accent hover:from-ada-red/80 hover:to-ada-accent/80 rounded-xl text-white transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {importing ? (
-                    <div className="flex items-center space-x-2">
+                    <>
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                       <span>Importando...</span>
-                    </div>
+                    </>
                   ) : (
-                    'Importar'
+                    <>
+                      <Download className="h-4 w-4" />
+                      <span>Importar</span>
+                    </>
                   )}
-                </Button>
+                </button>
               </div>
             </div>
           )}
