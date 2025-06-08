@@ -45,10 +45,10 @@ const ModernNavbar = ({
   return (
     <>
       {/* Floating Navbar */}
-      <nav className="fixed top-4 left-4 right-4 z-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-white/8 backdrop-blur-3xl border border-white/15 rounded-3xl shadow-2xl shadow-black/20">
-            <div className="flex items-center justify-between px-6 py-4">
+      <nav className="fixed top-1 left-4 right-4 z-50">
+        <div className="max-w-5xl mx-auto">
+          <div className="bg-white/8 backdrop-blur-6xl border-white/15 rounded-3xl shadow-2xl shadow-black/20">
+            <div className="flex items-center justify-evenly px-6 py-4">
 
               {/* Logo Section */}
               <div className="flex items-center space-x-4">
@@ -90,13 +90,6 @@ const ModernNavbar = ({
                           <div className="absolute inset-0 bg-gradient-to-r from-ada-red/10 to-ada-accent/10 rounded-2xl"></div>
                         )}
                       </Button>
-
-                      {/* Tooltip */}
-                      <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
-                        <div className="bg-black/90 backdrop-blur-sm text-white text-xs px-3 py-2 rounded-xl border border-white/20 shadow-xl">
-                          {item.description}
-                        </div>
-                      </div>
                     </div>
                   );
                 })}
