@@ -21,7 +21,11 @@ const HorizontalFilters = ({ filters, onFilterChange, onClearFilters, onImportCl
   const getActiveFilters = () => {
     const active = [];
     if (filters.search) active.push({ key: 'search', label: `Busca: "${filters.search}"` });
-    if (filters.status !== 'Todos') active.push({ key: 'status', label: `Status: ${filters.status}` });
+    if (filters.status !== 'Todos') {
+      // Display friendly name but keep the actual value for filtering
+      const statusDisplay = filters.status === 'A fazer' ? 'A Fazer' : filters.status;
+      active.push({ key: 'status', label: `Status: ${statusDisplay}` });
+    }
     if (filters.type !== 'Todos') active.push({ key: 'type', label: `Tipo: ${filters.type}` });
     if (filters.required !== 'Todos') active.push({ key: 'required', label: `Obrigatório: ${filters.required}` });
     return active;
@@ -103,7 +107,7 @@ const HorizontalFilters = ({ filters, onFilterChange, onClearFilters, onImportCl
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-ada-red/50 focus:border-ada-red/50"
                 >
                   <option value="Todos">Todos</option>
-                  <option value="A Fazer">A Fazer</option>
+                  <option value="A fazer">A Fazer</option>
                   <option value="Fazendo">Fazendo</option>
                   <option value="Feito">Feito</option>
                 </select>

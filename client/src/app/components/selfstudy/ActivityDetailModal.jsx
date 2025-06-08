@@ -12,6 +12,8 @@ const ActivityDetailModal = ({ activity, isOpen, onClose }) => {
         return { color: 'bg-green-500', label: 'Feito' };
       case 'Fazendo':
         return { color: 'bg-yellow-500', label: 'Fazendo' };
+      case 'A fazer':
+        return { color: 'bg-gray-500', label: 'A Fazer' };
       default:
         return { color: 'bg-gray-500', label: 'A Fazer' };
     }

@@ -11,6 +11,8 @@ const ActivityTable = ({ activities, onStatusChange, onActivityClick }) => {
         return <Badge className="bg-green-500 text-white">Feito</Badge>;
       case 'Fazendo':
         return <Badge className="bg-yellow-500 text-white">Fazendo</Badge>;
+      case 'A fazer':
+        return <Badge className="bg-primary text-primary-foreground">A Fazer</Badge>;
       default:
         return <Badge className="bg-primary text-primary-foreground">A Fazer</Badge>;
     }
@@ -84,7 +86,7 @@ const ActivityTable = ({ activities, onStatusChange, onActivityClick }) => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="A Fazer">A Fazer</SelectItem>
+                    <SelectItem value="A fazer">A Fazer</SelectItem>
                     <SelectItem value="Fazendo">Fazendo</SelectItem>
                     <SelectItem value="Feito">Feito</SelectItem>
                   </SelectContent>

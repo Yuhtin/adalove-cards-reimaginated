@@ -26,7 +26,7 @@ const mockActivities = [
     isRequired: true,
     url: "https://adalove.inteli.edu.br/ml-intro",
     type: "Auto Estudo",
-    status: "A Fazer"
+    status: "A fazer"
   },
   {
     id: 2,
@@ -158,8 +158,8 @@ export default function SelfStudyPage() {
     try {
       // Map frontend status to backend status
       const statusMap = {
-        'A Fazer': 'Todo',
-        'Fazendo': 'Doing', 
+        'A fazer': 'Todo',
+        'Fazendo': 'Doing',
         'Feito': 'Done'
       };
       

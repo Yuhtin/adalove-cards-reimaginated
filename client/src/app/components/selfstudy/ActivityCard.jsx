@@ -15,6 +15,12 @@ const ActivityCard = ({ activity, onStatusChange, onActivityClick, index }) => {
           badge: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
           label: 'Fazendo'
         };
+      case 'A fazer':
+        return {
+          color: 'bg-slate-500',
+          badge: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+          label: 'A Fazer'
+        };
       default:
         return {
           color: 'bg-slate-500',
@@ -112,7 +118,7 @@ const ActivityCard = ({ activity, onStatusChange, onActivityClick, index }) => {
           onClick={(e) => e.stopPropagation()}
           className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-ada-red/50 focus:border-ada-red/50 transition-all"
         >
-          <option value="A Fazer">A Fazer</option>
+          <option value="A fazer">A Fazer</option>
           <option value="Fazendo">Fazendo</option>
           <option value="Feito">Feito</option>
         </select>

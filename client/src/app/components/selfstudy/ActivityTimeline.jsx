@@ -10,6 +10,8 @@ const ActivityTimeline = ({ activities, onStatusChange, onActivityClick }) => {
         return { color: 'bg-green-500', textColor: 'text-green-600' };
       case 'Fazendo':
         return { color: 'bg-yellow-500', textColor: 'text-yellow-600' };
+      case 'A fazer':
+        return { color: 'bg-gray-500', textColor: 'text-gray-600' };
       default:
         return { color: 'bg-primary', textColor: 'text-primary' };
     }
@@ -99,7 +101,7 @@ const ActivityTimeline = ({ activities, onStatusChange, onActivityClick }) => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="A Fazer">A Fazer</SelectItem>
+                        <SelectItem value="A fazer">A Fazer</SelectItem>
                         <SelectItem value="Fazendo">Fazendo</SelectItem>
                         <SelectItem value="Feito">Feito</SelectItem>
                       </SelectContent>
