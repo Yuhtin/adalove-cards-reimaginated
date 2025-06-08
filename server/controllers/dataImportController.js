@@ -319,10 +319,11 @@ const processOfficialActivity = async (activity, userId, sectionId = null, weekN
   let activityTypeId = 2; // Default to "Instrução"
   if (sanitizedActivity.type) {
     switch (parseInt(sanitizedActivity.type)) {
-      case 1: activityTypeId = 1; break; // Apresentação
+      case 1: activityTypeId = 1; break; // Orientação 
       case 2: activityTypeId = 2; break; // Instrução
       case 11: activityTypeId = 3; break; // Autoestudo
-      default: activityTypeId = 4; break; // Outros
+      case 21: activityTypeId = 4; break; // Artefatos 
+      default: activityTypeId = 2; break; // Default to "Instrução"
     }
   }
 

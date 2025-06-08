@@ -149,7 +149,7 @@ class Activity {
         iconUrl = '/images/icons/self-study.png';
         break;
       case 4:
-        activityName = 'Desenvolvimento de Projetos';
+        activityName = 'Artefatos';
         iconUrl = '/images/icons/project.png';
         break;
       case 5:

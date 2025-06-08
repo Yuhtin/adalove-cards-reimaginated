@@ -26,7 +26,7 @@ const mockActivities = [
     week: 1,
     isRequired: true,
     url: "https://adalove.inteli.edu.br/ml-intro",
-    type: "Auto Estudo",
+    type: "Autoestudo",
     status: "A fazer"
   },
   {
@@ -37,7 +37,7 @@ const mockActivities = [
     week: 1,
     isRequired: false,
     url: "https://adalove.inteli.edu.br/algorithms",
-    type: "Avaliação e Pesquisa",
+    type: "Instrução",
     status: "Fazendo"
   },
   {
@@ -48,7 +48,7 @@ const mockActivities = [
     week: 2,
     isRequired: true,
     url: "https://adalove.inteli.edu.br/web-dev",
-    type: "Desenvolvimento de Projetos",
+    type: "Artefatos",
     status: "Feito"
   }
 ];

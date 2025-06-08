@@ -47,7 +47,7 @@ const ModernNavbar = ({
       {/* Floating Navbar */}
       <nav className="fixed top-1 left-4 right-4 z-50">
         <div className="max-w-5xl mx-auto">
-          <div className="bg-white/8 backdrop-blur-6xl border-white/15 rounded-3xl shadow-2xl shadow-black/20">
+          <div className="glassmorphism bg-white/15 backdrop-blur-6xl border-white/20 rounded-3xl shadow-2xl shadow-black/30">
             <div className="flex items-center justify-evenly px-6 py-4">
 
               {/* Logo Section */}

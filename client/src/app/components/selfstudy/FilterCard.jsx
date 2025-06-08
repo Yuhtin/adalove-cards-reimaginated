@@ -61,12 +61,10 @@ const FilterCard = ({ filters, onFilterChange, onClearFilters, onImportClick }) 
             </SelectTrigger>
             <SelectContent className="bg-popover border border-primary/20">
               <SelectItem value="Todos">Todos</SelectItem>
-              <SelectItem value="Apresentação">Apresentação</SelectItem>
+              <SelectItem value="Orientação">Orientação</SelectItem>
               <SelectItem value="Instrução">Instrução</SelectItem>
-              <SelectItem value="Auto Estudo">Auto Estudo</SelectItem>
-              <SelectItem value="Avaliação e Pesquisa">Avaliação e Pesquisa</SelectItem>
-              <SelectItem value="Desenvolvimento de Projetos">Desenvolvimento de Projetos</SelectItem>
-              <SelectItem value="Outros">Outros</SelectItem>
+              <SelectItem value="Autoestudo">Autoestudo</SelectItem>
+              <SelectItem value="Artefatos">Artefatos</SelectItem>
             </SelectContent>
           </Select>
         </div>

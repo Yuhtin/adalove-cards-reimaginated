@@ -144,10 +144,10 @@ CREATE INDEX IF NOT EXISTS idx_student_activities_uuid ON student_activities(stu
 CREATE INDEX IF NOT EXISTS idx_student_activities_student_uuid ON student_activities(studentUuid);
 
 INSERT INTO activity_types (name, iconUrl) VALUES
-('Apresentação', '/images/icons/presentation.png'),
+('Orientação', '/images/icons/presentation.png'),
 ('Instrução', '/images/icons/instruction.png'),
 ('Autoestudo', '/images/icons/self-study.png'),
-('Outros', '/images/icons/other.png')
+('Artefatos', '/images/icons/other.png')
 ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO status_types (name, iconUrl) VALUES 
