@@ -132,6 +132,18 @@ export const studentActivities = {
   async getStats() {
     const response = await api.get('/student-activities/stats');
     return response.data;
+  },
+
+  async getChartsData(weekFilter = 'all') {
+    const response = await api.get('/student-activities/charts-data', {
+      params: { weekFilter }
+    });
+    return response.data;
+  },
+
+  async bulkDelete() {
+    const response = await api.delete('/student-activities/bulk-delete');
+    return response.data;
   }
 };
 

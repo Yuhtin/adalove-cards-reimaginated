@@ -44,6 +44,8 @@ const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }
   });
 
   const [importHistory, setImportHistory] = useState([]);
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
 
   // Load user profile when modal opens
   useEffect(() => {
@@ -220,6 +222,33 @@ const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }
           variant: "destructive"
         });
       }
+    }
+  };
+
+  const handleClearAllActivities = async () => {
+    try {
+      setIsClearing(true);
+
+      const { studentActivities } = await import('../../../lib/api');
+      await studentActivities.bulkDelete();
+
+      toast({
+        title: "Sucesso",
+        description: "Todas as atividades foram removidas com sucesso",
+      });
+
+      // Refresh import stats
+      await loadImportData();
+      setShowClearDialog(false);
+    } catch (error) {
+      console.error('Error clearing activities:', error);
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao remover atividades",
+        variant: "destructive"
+      });
+    } finally {
+      setIsClearing(false);
     }
   };
 
@@ -556,6 +585,32 @@ const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }
             </div>
           )}
 
+          {/* Clear All Activities Section */}
+          <div className="border-t border-white/20 pt-6">
+            <h4 className="text-white font-medium mb-3 flex items-center space-x-2">
+              <Database className="h-5 w-5 text-red-400" />
+              <span>Gerenciar Dados</span>
+            </h4>
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-red-400 font-medium mb-2">Limpar Todas as Atividades</p>
+                  <p className="text-red-300/80 text-sm mb-4">
+                    Esta ação removerá permanentemente todas as suas atividades importadas.
+                    Você poderá reimportar seus dados do AdaLove 1.0 posteriormente.
+                  </p>
+                  <Button
+                    onClick={() => setShowClearDialog(true)}
+                    className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 hover:text-red-300 rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200"
+                  >
+                    Limpar Todas as Atividades
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Import History */}
           {importHistory.length > 0 && (
             <div>
@@ -760,6 +815,52 @@ const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }
           </div>
         </div>
       </div>
+
+      {/* Clear Activities Confirmation Dialog */}
+      {showClearDialog && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowClearDialog(false)}></div>
+          <div className="relative bg-white/10 backdrop-blur-3xl border border-white/20 rounded-2xl p-6 max-w-md w-full">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
+                <AlertCircle className="h-8 w-8 text-red-400" />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-bold text-white mb-2">Confirmar Exclusão</h3>
+                <p className="text-white/70 text-sm">
+                  Tem certeza que deseja remover <strong>todas as suas atividades</strong>?
+                  Esta ação não pode ser desfeita.
+                </p>
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <Button
+                  onClick={() => setShowClearDialog(false)}
+                  disabled={isClearing}
+                  className="flex-1 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl py-2"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleClearAllActivities}
+                  disabled={isClearing}
+                  className="flex-1 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-400 rounded-xl py-2 flex items-center justify-center space-x-2"
+                >
+                  {isClearing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Removendo...</span>
+                    </>
+                  ) : (
+                    <span>Confirmar Exclusão</span>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

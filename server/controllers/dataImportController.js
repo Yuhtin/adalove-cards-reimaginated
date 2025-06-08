@@ -33,13 +33,9 @@ const filterAutoestudoActivities = (activities, folderToWeekMap) => {
   }
 
   return activities.filter(activity => {
-    // Check if activity is an autoestudo (type 11)
-    const isAutoestudo = parseInt(activity.type) === 11;
-
     // Check if activity belongs to a "Semana XX" folder
     const isFromWeeklyFolder = folderToWeekMap.hasOwnProperty(activity.folder);
-
-    return isAutoestudo && isFromWeeklyFolder;
+    return isFromWeeklyFolder;
   });
 };
 

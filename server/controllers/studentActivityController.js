@@ -146,6 +146,100 @@ const getAllStatusTypes = async (req, res) => {
   }
 };
 
+const getChartsData = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { weekFilter } = req.query;
+
+    // Get activities with optional week filter
+    let whereClause = 'sa.userId = $1';
+    let params = [userId];
+
+    if (weekFilter && weekFilter !== 'all') {
+      whereClause += ' AND a.weekNumber = $2';
+      params.push(parseInt(weekFilter));
+    }
+
+    // Weekly progress data
+    const weeklyProgressQuery = `
+      SELECT
+        a.weekNumber,
+        COUNT(*) as total,
+        COUNT(CASE WHEN st.name = 'Feito' THEN 1 END) as completed,
+        COUNT(CASE WHEN st.name = 'Fazendo' THEN 1 END) as inProgress,
+        COUNT(CASE WHEN st.name = 'A fazer' THEN 1 END) as pending
+      FROM student_activities sa
+      JOIN activities a ON sa.activityId = a.id
+      JOIN status_types st ON sa.statusTypeId = st.id
+      WHERE ${whereClause}
+      GROUP BY a.weekNumber
+      ORDER BY a.weekNumber ASC
+    `;
+
+    // Activity type distribution
+    const typeDistributionQuery = `
+      SELECT
+        at.name as activityType,
+        COUNT(*) as count,
+        COUNT(CASE WHEN st.name = 'Feito' THEN 1 END) as completed
+      FROM student_activities sa
+      JOIN activities a ON sa.activityId = a.id
+      JOIN activity_types at ON a.activityTypeId = at.id
+      JOIN status_types st ON sa.statusTypeId = st.id
+      WHERE ${whereClause}
+      GROUP BY at.name
+      ORDER BY count DESC
+    `;
+
+    // Monthly completion trend
+    const monthlyTrendQuery = `
+      SELECT
+        DATE_TRUNC('month', a.date) as month,
+        COUNT(*) as total,
+        COUNT(CASE WHEN st.name = 'Feito' THEN 1 END) as completed
+      FROM student_activities sa
+      JOIN activities a ON sa.activityId = a.id
+      JOIN status_types st ON sa.statusTypeId = st.id
+      WHERE ${whereClause}
+      GROUP BY DATE_TRUNC('month', a.date)
+      ORDER BY month ASC
+    `;
+
+    const [weeklyProgress, typeDistribution, monthlyTrend] = await Promise.all([
+      require('../config/db').query(weeklyProgressQuery, params),
+      require('../config/db').query(typeDistributionQuery, params),
+      require('../config/db').query(monthlyTrendQuery, params)
+    ]);
+
+    res.status(200).json({
+      weeklyProgress: weeklyProgress.rows,
+      typeDistribution: typeDistribution.rows,
+      monthlyTrend: monthlyTrend.rows
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const bulkDeleteActivities = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Delete all student activities for the user
+    const result = await require('../config/db').query(
+      'DELETE FROM student_activities WHERE userId = $1',
+      [userId]
+    );
+
+    res.status(200).json({
+      message: 'All activities deleted successfully',
+      deletedCount: result.rowCount
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getAllStudentActivities,
   getStudentActivityById,
@@ -157,5 +251,7 @@ module.exports = {
   getStudentActivitiesByFilters,
   getStudentActivityStats,
   getAllActivityTypes,
-  getAllStatusTypes
+  getAllStatusTypes,
+  getChartsData,
+  bulkDeleteActivities
 };

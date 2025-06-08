@@ -9,14 +9,18 @@ router.use(authController.verifyToken);
 // Type routes (no auth needed for these)
 router.get('/activity-types', studentActivityController.getAllActivityTypes);
 router.get('/status-types', studentActivityController.getAllStatusTypes);
+router.get('/charts-data', studentActivityController.getChartsData);
+router.delete('/bulk-delete', studentActivityController.bulkDeleteActivities);
 
-router.get('/', studentActivityController.getStudentActivitiesByFilters);
+// Main CRUD routes
+router.get('/', studentActivityController.getAllStudentActivities);
+router.get('/user/:userId', studentActivityController.getUserStudentActivities);
+router.get('/filters', studentActivityController.getStudentActivitiesByFilters);
 router.get('/stats', studentActivityController.getStudentActivityStats);
-router.get('/all', studentActivityController.getAllStudentActivities);
 router.get('/:id', studentActivityController.getStudentActivityById);
 router.post('/', studentActivityController.createStudentActivity);
 router.put('/:id', studentActivityController.updateStudentActivity);
 router.patch('/:id/status', studentActivityController.updateStudentActivityStatus);
 router.delete('/:id', studentActivityController.deleteStudentActivity);
 
-module.exports = router; 
+module.exports = router;
