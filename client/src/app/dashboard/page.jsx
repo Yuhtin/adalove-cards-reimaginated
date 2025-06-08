@@ -86,6 +86,18 @@ export default function DashboardPage() {
     setIsSettingsOpen(true);
   };
 
+  const handleUserUpdate = (updatedUser) => {
+    setUsername(updatedUser.username);
+    // Update localStorage
+    const currentUser = auth.getCurrentUser();
+    if (currentUser) {
+      localStorage.setItem('user', JSON.stringify({
+        ...currentUser,
+        ...updatedUser
+      }));
+    }
+  };
+
   const handleLogout = () => {
     auth.logout();
     router.push('/login');
@@ -229,7 +241,7 @@ export default function DashboardPage() {
       <footer className="relative border-t border-white/10 py-8 mt-16 bg-white/5 backdrop-blur-sm">
         <div className="container mx-auto px-4 text-center">
           <p className="text-slate-400 font-medium">
-            AdaLove 2 - Instituto de Tecnologia e Liderança (Inteli) © 2024
+            AdaLove 2 - Instituto de Tecnologia e Liderança (Inteli) © 2025
           </p>
         </div>
       </footer>
@@ -239,6 +251,7 @@ export default function DashboardPage() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         username={username}
+        onUserUpdate={handleUserUpdate}
       />
     </div>
   );

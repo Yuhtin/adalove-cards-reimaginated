@@ -35,6 +35,17 @@
   --sidebar-accent-foreground: 240 5.9% 10%;
   --sidebar-border: 220 13% 91%;
   --sidebar-ring: 217.2 91.2% 59.8%;
+
+  /* AdaLove Theme Variables */
+  --ada-red: #E30614;
+  --ada-accent: #F24444;
+  --color-primary: #E30614;
+  --color-secondary: #F24444;
+  --color-primary-rgb: 227, 6, 20;
+  --gradient-primary: linear-gradient(to right, #E30614, #F24444);
+  --animation-duration: 300ms;
+  --spacing-unit: 1rem;
+  --text-size-base: 1rem;
 }
 
 .dark {
@@ -242,4 +253,84 @@
   border-radius: inherit;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
+}
+
+/* Theme System */
+body.light-theme {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #e2e8f0 100%) !important;
+  color: #1e293b !important;
+}
+
+body.dark-theme,
+body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%) !important;
+  color: #f1f5f9 !important;
+}
+
+/* No animations */
+.no-animations *,
+.no-animations *::before,
+.no-animations *::after {
+  animation-duration: 0ms !important;
+  animation-delay: 0ms !important;
+  transition-duration: 0ms !important;
+  transition-delay: 0ms !important;
+}
+
+/* Compact mode */
+.compact-mode .p-4 {
+  padding: 0.75rem !important;
+}
+
+.compact-mode .p-6 {
+  padding: 1rem !important;
+}
+
+.compact-mode .text-lg {
+  font-size: 1rem !important;
+}
+
+.compact-mode .text-xl {
+  font-size: 1.125rem !important;
+}
+
+/* Dynamic color utilities */
+.bg-ada-red {
+  background-color: var(--ada-red) !important;
+}
+
+.bg-ada-accent {
+  background-color: var(--ada-accent) !important;
+}
+
+.text-ada-red {
+  color: var(--ada-red) !important;
+}
+
+.text-ada-accent {
+  color: var(--ada-accent) !important;
+}
+
+.border-ada-red {
+  border-color: var(--ada-red) !important;
+}
+
+.border-ada-accent {
+  border-color: var(--ada-accent) !important;
+}
+
+/* Force gradient updates */
+.from-ada-red {
+  --tw-gradient-from: var(--ada-red) !important;
+}
+
+.to-ada-accent {
+  --tw-gradient-to: var(--ada-accent) !important;
+}
+
+/* Ensure theme transitions */
+* {
+  transition: background-color var(--animation-duration),
+              color var(--animation-duration),
+              border-color var(--animation-duration);
 }

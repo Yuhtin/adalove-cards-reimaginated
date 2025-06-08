@@ -52,6 +52,20 @@ export const auth = {
     return response.data;
   },
 
+  async getProfile() {
+    const response = await api.get('/auth/profile');
+    return response.data;
+  },
+
+  async updateProfile(profileData) {
+    const response = await api.put('/auth/profile', profileData);
+    if (response.data.user) {
+      // Update local storage with new user data
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+    }
+    return response.data;
+  },
+
   async changePassword(passwordData) {
     const response = await api.post('/auth/change-password', passwordData);
     return response.data;
@@ -195,6 +209,46 @@ export const users = {
 
   async getUserWithCards(id) {
     const response = await api.get(`/users/${id}/cards`);
+    return response.data;
+  }
+};
+
+export const dataImport = {
+  async uploadFile(file, onProgress) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await api.post('/data/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        if (onProgress && progressEvent.total) {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress(progress);
+        }
+      }
+    });
+    return response.data;
+  },
+
+  async getImportStatus(jobId) {
+    const response = await api.get(`/data/import-status/${jobId}`);
+    return response.data;
+  },
+
+  async getStatistics() {
+    const response = await api.get('/data/statistics');
+    return response.data;
+  },
+
+  async getImportHistory() {
+    const response = await api.get('/data/import-history');
+    return response.data;
+  },
+
+  async cancelImport(jobId) {
+    const response = await api.post(`/data/cancel-import/${jobId}`);
     return response.data;
   }
 };

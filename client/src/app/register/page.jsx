@@ -37,16 +37,17 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      // Extract username from email (before @)
-      const username = formData.email.split('@')[0];
+      const username = formData.name;
       
       const { user } = await auth.register({
         username,
         email: formData.email,
         password: formData.password
       });
+
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('authToken', user.token);
       
-      // Redirect to dashboard after successful registration
       router.push('/dashboard');
     } catch (error) {
       setError(error.response?.data?.message || 'Erro ao criar conta. Tente novamente.');

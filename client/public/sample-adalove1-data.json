@@ -1,0 +1,58 @@
+{
+  "section": {
+    "sectionUuid": "12345678-1234-1234-1234-123456789abc",
+    "name": "Turma Exemplo",
+    "description": "Turma de exemplo para demonstração"
+  },
+  "activities": [
+    {
+      "studentActivityUuid": "d25849c45ffb46848130b385ec54d159",
+      "activityUuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "caption": "Banco de Dados I - Conceitos, Modelos e SQL Básico",
+      "professorName": "Bryan Kano Ferreira",
+      "status": 3,
+      "activityNotes": "Atividade muito interessante sobre conceitos de BD",
+      "activityRating": 5,
+      "gradeWeight": 1.5,
+      "studyQuestion": "Quais são os principais tipos de banco de dados?",
+      "studyAnswer": "Relacionais, NoSQL, orientados a objetos e hierárquicos"
+    },
+    {
+      "studentActivityUuid": "e36950d56aab57959241c496fd65e260",
+      "activityUuid": "b2c3d4e5-f6g7-8901-bcde-f23456789012",
+      "caption": "Programação Orientada a Objetos - Conceitos Fundamentais",
+      "professorName": "Maria Silva Santos",
+      "status": 2,
+      "activityNotes": "Conceitos de classes, objetos, herança e polimorfismo",
+      "activityRating": 4,
+      "checkWeight": 2.0,
+      "studyQuestion": "O que é encapsulamento?",
+      "studyAnswer": "Princípio que oculta detalhes internos de implementação"
+    },
+    {
+      "studentActivityUuid": "f47061e67bbc68a6a352d5a7fe76f371",
+      "activityUuid": "c3d4e5f6-g7h8-9012-cdef-345678901234",
+      "caption": "Estruturas de Dados - Listas, Pilhas e Filas",
+      "professorName": "Carlos Eduardo Lima",
+      "status": 1,
+      "activityNotes": "Implementação e uso de estruturas de dados básicas",
+      "activityRating": 5,
+      "conceptWeight": 1.0,
+      "studyQuestion": "Qual a diferença entre pilha e fila?",
+      "studyAnswer": "Pilha é LIFO (último a entrar, primeiro a sair), fila é FIFO (primeiro a entrar, primeiro a sair)"
+    }
+  ],
+  "students": [
+    {
+      "userUuid": "student123",
+      "name": "João Estudante",
+      "email": "joao@example.com"
+    }
+  ],
+  "roles": [
+    {
+      "roleUuid": "role123",
+      "name": "Estudante"
+    }
+  ]
+}

@@ -28,10 +28,12 @@ db.connect()
     const authRoutes = require('./routes/authRoutes');
     const sectionRoutes = require('./routes/sectionRoutes');
     const studentActivityRoutes = require('./routes/studentActivityRoutes');
+    const dataRoutes = require('./routes/dataRoutes');
 
     app.use('/api/auth', authRoutes);
     app.use('/api/sections', sectionRoutes);
     app.use('/api/student-activities', studentActivityRoutes);
+    app.use('/api/data', dataRoutes);
 
     // Middleware para lidar com erros de rota não encontrada
     app.use((req, res, next) => {

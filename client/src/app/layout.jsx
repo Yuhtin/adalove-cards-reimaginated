@@ -2,6 +2,7 @@ import { Inter } from 'next/font/google'
 import { ClientProviders } from './components/providers/ClientProviders'
 import { Toaster } from "./components/ui/toaster"
 import { Toaster as Sonner } from "./components/ui/sonner"
+import { SettingsInitializer } from './components/providers/SettingsInitializer'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -16,6 +17,7 @@ export default function RootLayout({ children }) {
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={inter.className}>
         <ClientProviders>
+          <SettingsInitializer />
           {children}
           <Toaster />
           <Sonner />

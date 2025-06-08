@@ -46,7 +46,7 @@ const ModernNavbar = ({
     <>
       {/* Floating Navbar */}
       <nav className="fixed top-4 left-4 right-4 z-50">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="bg-white/8 backdrop-blur-3xl border border-white/15 rounded-3xl shadow-2xl shadow-black/20">
             <div className="flex items-center justify-between px-6 py-4">
 
@@ -107,15 +107,15 @@ const ModernNavbar = ({
                 {/* User Dropdown */}
                 <div className="relative" ref={dropdownRef}>
                   <Button
-                    
-                    className="flex items-center space-x-3 bg-white/8 hover:bg-white/12 border border-white/15 hover:border-white/25 rounded-2xl px-4 py-2.5 transition-all duration-300"
+                    onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                    onMouseEnter={() => setIsUserDropdownOpen(true)}
+                    className="flex items-center space-x-3 bg-white/8 hover:bg-white/12 border hover:border-white/25 rounded-2xl px-4 py-2.5 transition-all duration-300"
                   >
                     <div className="w-8 h-8 bg-gradient-to-br from-ada-red to-ada-accent rounded-full flex items-center justify-center">
                       <User className="h-4 w-4 text-white" />
                     </div>
                     <div className="hidden sm:block text-left">
                       <p className="text-sm font-medium text-white">{username}</p>
-                      <p className="text-xs text-white/60">Estudante</p>
                     </div>
                     <ChevronDown className={`h-4 w-4 text-white/60 transition-transform duration-200 ${isUserDropdownOpen ? 'rotate-180' : ''}`} />
                   </Button>
@@ -123,7 +123,7 @@ const ModernNavbar = ({
                   {/* Dropdown Menu */}
                   {isUserDropdownOpen && (
                     <div
-                      className="absolute right-0 top-full mt-2 w-56 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-2xl shadow-black/20 py-2 z-50"
+                      className="absolute right-0 top-full mt-2 w-56 rounded-2xl shadow-2xl py-2 z-50 bg-white/10 backdrop-blur-2xl border border-white/20"
                       onMouseLeave={() => setIsUserDropdownOpen(false)}
                     >
                       <div className="px-4 py-3 border-b border-white/10">
@@ -137,7 +137,7 @@ const ModernNavbar = ({
                             onSettingsClick();
                             setIsUserDropdownOpen(false);
                           }}
-                          className="w-full flex items-center space-x-3 px-4 py-2.5 text-left hover:bg-white/10 transition-colors duration-200 text-white/80 hover:text-white"
+                          className="w-full flex items-center space-x-3 px-4 py-2.5 text-left bg-white/05 hover:bg-white/10 transition-colors duration-200 text-white/80 hover:text-white"
                         >
                           <Settings className="h-4 w-4" />
                           <span className="text-sm">Configurações</span>
@@ -148,7 +148,7 @@ const ModernNavbar = ({
                             onLogout();
                             setIsUserDropdownOpen(false);
                           }}
-                          className="w-full flex items-center space-x-3 px-4 py-2.5 text-left hover:bg-red-500/20 transition-colors duration-200 text-red-400 hover:text-red-300"
+                          className="w-full flex items-center space-x-3 px-4 py-2.5 text-left bg-white/05 hover:bg-red-500/20 transition-colors duration-200 text-red-400 hover:text-red-300"
                         >
                           <LogOut className="h-4 w-4" />
                           <span className="text-sm">Sair</span>

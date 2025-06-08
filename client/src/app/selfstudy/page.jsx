@@ -229,6 +229,18 @@ export default function SelfStudyPage() {
     setIsSettingsOpen(true);
   };
 
+  const handleUserUpdate = (updatedUser) => {
+    setUsername(updatedUser.username);
+    // Update localStorage
+    const currentUser = auth.getCurrentUser();
+    if (currentUser) {
+      localStorage.setItem('user', JSON.stringify({
+        ...currentUser,
+        ...updatedUser
+      }));
+    }
+  };
+
   const handleLogout = () => {
     auth.logout();
     router.push('/login');
@@ -407,6 +419,7 @@ export default function SelfStudyPage() {
           isOpen={isSettingsOpen}
           onClose={() => setIsSettingsOpen(false)}
           username={username}
+          onUserUpdate={handleUserUpdate}
         />
       </div>
     </div>

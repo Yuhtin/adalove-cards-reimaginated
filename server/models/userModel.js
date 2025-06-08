@@ -3,25 +3,30 @@ const bcrypt = require('bcrypt');
 
 class User {
   static async getAll() {
-    const result = await db.query('SELECT id, username, iconUrl FROM users');
+    const result = await db.query('SELECT id, email, username, iconUrl FROM users');
     return result.rows;
   }
 
   static async getById(id) {
-    const result = await db.query('SELECT id, username, iconUrl FROM users WHERE id = $1', [id]);
+    const result = await db.query('SELECT id, username, email, iconUrl FROM users WHERE id = $1', [id]);
     return result.rows[0];
   }
 
   static async getByUsername(username) {
-    const result = await db.query('SELECT * FROM users WHERE username = $1', [username]);
+    const result = await db.query('SELECT id, email, username, iconUrl FROM users WHERE LOWER(username) = LOWER($1)', [username]);
+    return result.rows[0];
+  }
+
+  static async getByEmail(email) {
+    const result = await db.query('SELECT id, username, email, iconUrl FROM users WHERE LOWER(email) = LOWER($1)', [email]);
     return result.rows[0];
   }
 
   static async create(data) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const result = await db.query(
-      'INSERT INTO users (username, password, iconUrl) VALUES ($1, $2, $3) RETURNING id, username, iconUrl',
-      [data.username, hashedPassword, data.iconUrl || null]
+      'INSERT INTO users (username, email, password, iconUrl) VALUES ($1, $2, $3, $4) RETURNING id, username, iconUrl',
+      [data.username, data.email, hashedPassword, data.iconUrl || null]
     );
     return result.rows[0];
   }
@@ -56,7 +61,7 @@ class User {
       UPDATE users 
       SET ${updateFields.join(', ')} 
       WHERE id = $${paramCounter} 
-      RETURNING id, username, iconUrl
+      RETURNING id, username, email, iconUrl
     `;
     
     const result = await db.query(query, params);
@@ -68,8 +73,8 @@ class User {
     return result.rowCount > 0;
   }
 
-  static async authenticate(username, password) {
-    const result = await db.query('SELECT * FROM users WHERE username = $1', [username]);
+  static async authenticate(email, password) {
+    const result = await db.query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [email]);
     if (result.rows.length === 0) return null;
     
     const user = result.rows[0];
@@ -82,7 +87,7 @@ class User {
   }
 
   static async getUserWithCards(id) {
-    const userResult = await db.query('SELECT id, username, iconUrl FROM users WHERE id = $1', [id]);
+    const userResult = await db.query('SELECT id, username, email, iconUrl FROM users WHERE id = $1', [id]);
     
     if (userResult.rows.length === 0) {
       return null;
@@ -126,7 +131,7 @@ class User {
   
   static async updateIcon(id, iconUrl) {
     const result = await db.query(
-      'UPDATE users SET iconUrl = $1 WHERE id = $2 RETURNING id, username, iconUrl',
+      'UPDATE users SET iconUrl = $1 WHERE id = $2 RETURNING id, username, email, iconUrl',
       [iconUrl, id]
     );
     return result.rows[0];

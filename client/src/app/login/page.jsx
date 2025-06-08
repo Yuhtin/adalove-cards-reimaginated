@@ -27,9 +27,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Extract username from email (before @)
-      const username = email.split('@')[0];
-      const { user } = await auth.login({ username, password });
+      const { user } = await auth.login({ email, password });
       
       // Redirect to dashboard after successful login
       router.push('/dashboard');
