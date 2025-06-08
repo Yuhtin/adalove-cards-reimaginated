@@ -373,7 +373,7 @@ const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }
         </div>
 
         {/* Form Fields */}
-        <div className="space-y-4">
+        <div className="space-y-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-white/80 mb-2">Nome</label>
             <input
@@ -397,6 +397,24 @@ const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }
             <p className="text-xs text-white/50 mt-1">Email não pode ser alterado</p>
           </div>
         </div>
+
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+          className="px-6 py-2 bg-gradient-to-r from-ada-red to-ada-accent hover:from-ada-red/80 hover:to-ada-accent/80 rounded-xl text-white transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {saving ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Salvando...</span>
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4" />
+              <span>Salvar</span>
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );
@@ -443,11 +461,10 @@ const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }
           <div className="mb-6">
             <label className="block text-sm font-medium text-white/80 mb-3">Importar Meus Autoestudos</label>
             <div
-              className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
-                importState.dragActive
-                  ? 'border-ada-accent bg-ada-accent/10'
-                  : 'border-white/20 hover:border-white/40'
-              }`}
+              className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${importState.dragActive
+                ? 'border-ada-accent bg-ada-accent/10'
+                : 'border-white/20 hover:border-white/40'
+                }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
@@ -519,11 +536,10 @@ const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }
 
           {/* Import Status */}
           {importState.importStatus !== 'idle' && !importState.isUploading && (
-            <div className={`bg-white/5 border rounded-xl p-4 mb-6 ${
-              importState.importStatus === 'completed' ? 'border-green-500/30' :
+            <div className={`bg-white/5 border rounded-xl p-4 mb-6 ${importState.importStatus === 'completed' ? 'border-green-500/30' :
               importState.importStatus === 'error' ? 'border-red-500/30' :
-              'border-white/20'
-            }`}>
+                'border-white/20'
+              }`}>
               <div className="flex items-center space-x-3">
                 <div className={`w-6 h-6 ${statusDisplay.color}`}>
                   {importState.importStatus === 'completed' && <CheckCircle className="h-6 w-6" />}
@@ -617,22 +633,32 @@ const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-ada-accent transition-colors"
               />
               {userSettings.passwords.newPassword && userSettings.passwords.confirmPassword &&
-               userSettings.passwords.newPassword !== userSettings.passwords.confirmPassword && (
-                <p className="text-red-400 text-sm">As senhas não coincidem</p>
-              )}
+                userSettings.passwords.newPassword !== userSettings.passwords.confirmPassword && (
+                  <p className="text-red-400 text-sm">As senhas não coincidem</p>
+                )}
               {userSettings.passwords.newPassword && userSettings.passwords.newPassword.length < 6 && (
                 <p className="text-red-400 text-sm">A senha deve ter pelo menos 6 caracteres</p>
               )}
             </div>
           </div>
 
-          <div className="pt-4 border-t border-white/20">
-            <h4 className="text-white font-medium mb-2">Zona de Perigo</h4>
-            <p className="text-white/60 text-sm mb-3">Esta ação não pode ser desfeita</p>
-            <Button className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-xl text-red-400 transition-colors duration-200">
-              Excluir Conta
-            </Button>
-          </div>
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="px-6 py-2 bg-gradient-to-r from-ada-red to-ada-accent hover:from-ada-red/80 hover:to-ada-accent/80 rounded-xl text-white transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Salvando...</span>
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                <span>Salvar</span>
+              </>
+            )}
+          </Button>
         </div>
       </div>
     </div>
@@ -680,11 +706,11 @@ const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       ></div>
-      
+
       {/* Modal */}
       <div className="relative w-full max-w-4xl h-[80vh] bg-white/10 backdrop-blur-3xl border border-white/20 rounded-3xl shadow-2xl shadow-black/20 overflow-hidden">
         {/* Header */}
@@ -705,16 +731,15 @@ const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }
               {sections.map((section) => {
                 const Icon = section.icon;
                 const isActive = activeSection === section.id;
-                
+
                 return (
                   <Button
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
-                    className={` flex items-center space-x-3 px-4 py-3 bg-white/05 hover:bg-white/10 rounded-xl transition-all duration-200 ${
-                      isActive
-                        ? 'bg-white/15 text-white border border-white/25'
-                        : 'text-white/70 hover:text-white hover:bg-white/10'
-                    }`}
+                    className={` flex items-center space-x-3 px-4 py-3 bg-white/05 hover:bg-white/10 rounded-xl transition-all duration-200 ${isActive
+                      ? 'bg-white/15 text-white border border-white/25'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                      }`}
                   >
                     <Icon className="h-5 w-5" />
                     <div className="text-left">
@@ -733,38 +758,7 @@ const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }
             {activeSection === 'account' && renderAccountSection()}
             {activeSection === 'about' && renderAboutSection()}
           </div>
-
-          <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-white/20 bg-white/5 backdrop-blur-sm">
-          <div className="flex justify-end space-x-3">
-            <Button
-              onClick={onClose}
-              className="px-6 py-2 bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl text-white transition-colors duration-200"
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={saving}
-              className="px-6 py-2 bg-gradient-to-r from-ada-red to-ada-accent hover:from-ada-red/80 hover:to-ada-accent/80 rounded-xl text-white transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Salvando...</span>
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4" />
-                  <span>Salvar</span>
-                </>
-              )}
-            </Button>
-          </div>
         </div>
-        </div>
-
-        {/* Footer */}
-      
       </div>
     </div>
   );
