@@ -25,7 +25,7 @@ class User {
   static async create(data) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const result = await db.query(
-      'INSERT INTO users (username, email, password, iconUrl) VALUES ($1, $2, $3, $4) RETURNING id, username, iconUrl',
+      'INSERT INTO users (username, email, password, iconUrl) VALUES ($1, $2, $3, $4) RETURNING id, email, username, iconUrl',
       [data.username, data.email, hashedPassword, data.iconUrl || null]
     );
     return result.rows[0];

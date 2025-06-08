@@ -137,6 +137,14 @@
   .animate-spin-slow {
     animation: spin-slow 8s linear infinite;
   }
+
+  .animate-gradient-x {
+    animation: gradient-x 3s ease infinite;
+  }
+
+  .bg-size-200 {
+    background-size: 200% 200%;
+  }
 }
 
 @keyframes fade-in {
@@ -194,6 +202,15 @@
   }
   100% {
     background-position: 200% 0;
+  }
+}
+
+@keyframes gradient-x {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
   }
 }
 

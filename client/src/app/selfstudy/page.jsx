@@ -71,6 +71,7 @@ export default function SelfStudyPage() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [showImportModal, setShowImportModal] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsInitialSection, setSettingsInitialSection] = useState('profile');
   const [username, setUsername] = useState('Usuário');
 
   useEffect(() => {
@@ -95,11 +96,13 @@ export default function SelfStudyPage() {
         const transformedActivities = response.map(activity => ({
           id: activity.id,
           name: activity.activityname || activity.activityName,
-          professor: activity.instructorname || activity.instructorName || 'Professor não informado',
+          professor: activity.instructorname || activity.instructorName || 'Orientador',
           date: activity.activitydate || activity.activityDate,
           week: activity.weeknumber || activity.weekNumber,
+          description: activity.activitydescription || activity.activityDescription,
           isRequired: activity.mandatory,
           url: activity.basicactivityurl || activity.basicActivityURL,
+          iconUrl: activity.activitytypeiconurl || activity.activityTypeIconUrl,
           type: activity.activitytypename || activity.activityTypeName,
           status: activity.statusname || activity.statusName
         }));
@@ -120,12 +123,30 @@ export default function SelfStudyPage() {
   const activitiesByWeek = useMemo(() => {
     return activities.reduce((acc, activity) => {
       if (!acc[activity.week]) {
-        acc[activity.week] = { total: 0, completed: 0 };
+        acc[activity.week] = {
+          total: 0,
+          completed: 0,
+          inProgress: 0,
+          pending: 0
+        };
       }
       acc[activity.week].total++;
-      if (activity.status === 'Feito') {
-        acc[activity.week].completed++;
+
+      // Count by status
+      switch (activity.status) {
+        case 'Feito':
+          acc[activity.week].completed++;
+          break;
+        case 'Fazendo':
+          acc[activity.week].inProgress++;
+          break;
+        case 'A fazer':
+          acc[activity.week].pending++;
+          break;
+        default:
+          acc[activity.week].pending++; // Default to pending
       }
+
       return acc;
     }, {});
   }, [activities]);
@@ -232,6 +253,12 @@ export default function SelfStudyPage() {
   };
 
   const handleSettingsClick = () => {
+    setSettingsInitialSection('profile');
+    setIsSettingsOpen(true);
+  };
+
+  const handleImportSettingsClick = () => {
+    setSettingsInitialSection('data');
     setIsSettingsOpen(true);
   };
 
@@ -362,21 +389,23 @@ export default function SelfStudyPage() {
           onSettingsClick={handleSettingsClick}
           onLogout={handleLogout}
         />
-        <div className="container mx-auto px-4 py-8 space-y-8">
-          <SelfStudyHeader
-            showWeekSelector={true}
-            selectedWeek={selectedWeek}
-            onBackToWeeks={handleBackToWeeks}
-          />
-
+        <div className="container mx-auto px-4 py-8 space-y-8">        
           {hasWeeks ? (
+            <SelfStudyHeader
+              showWeekSelector={true}
+              selectedWeek={selectedWeek}
+              onBackToWeeks={handleBackToWeeks}
+            />
+          ) : undefined}
+
+          {hasWeeks ? (            
             <WeekSelector
               onWeekSelect={handleWeekSelect}
               activitiesByWeek={activitiesByWeek}
             />
           ) : (
             <EmptyWeekSelector
-              onImportClick={() => setShowImportModal(true)}
+              onImportClick={handleImportSettingsClick}
             />
           )}
         </div>
@@ -392,6 +421,7 @@ export default function SelfStudyPage() {
           onClose={() => setIsSettingsOpen(false)}
           username={username}
           onUserUpdate={handleUserUpdate}
+          initialSection={settingsInitialSection}
         />
       </div>
     );
@@ -449,6 +479,7 @@ export default function SelfStudyPage() {
           onClose={() => setIsSettingsOpen(false)}
           username={username}
           onUserUpdate={handleUserUpdate}
+          initialSection={settingsInitialSection}
         />
       </div>
     </div>

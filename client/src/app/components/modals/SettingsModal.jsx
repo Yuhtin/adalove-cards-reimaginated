@@ -8,8 +8,8 @@ import { settings } from '../../../lib/settings';
 import { toast } from '../ui/use-toast';
 import { validateFile, validateJsonContent, formatFileSize, getStatusDisplay, estimateProcessingTime, pollImportStatus } from '../../../lib/dataImport';
 
-const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }) => {
-  const [activeSection, setActiveSection] = useState('profile');
+const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate, initialSection = 'profile' }) => {
+  const [activeSection, setActiveSection] = useState(initialSection);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [userSettings, setUserSettings] = useState({
@@ -46,6 +46,13 @@ const SettingsModal = ({ isOpen, onClose, username = "Estudante", onUserUpdate }
   const [importHistory, setImportHistory] = useState([]);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+
+  // Update active section when initialSection changes
+  useEffect(() => {
+    if (isOpen) {
+      setActiveSection(initialSection);
+    }
+  }, [isOpen, initialSection]);
 
   // Load user profile when modal opens
   useEffect(() => {

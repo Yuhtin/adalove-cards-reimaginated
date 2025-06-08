@@ -8,10 +8,7 @@ const EmptyWeekSelector = ({ onImportClick }) => {
         <div className="relative">
           <div className="w-32 h-32 mx-auto bg-gradient-to-br from-ada-red/20 to-ada-accent/20 rounded-3xl flex items-center justify-center border border-ada-red/20">
             <BookOpen className="h-16 w-16 text-ada-red" />
-          </div>
-          <div className="absolute -top-2 -right-2 w-12 h-12 bg-gradient-to-br from-ada-accent to-ada-red rounded-2xl flex items-center justify-center shadow-lg">
-            <Calendar className="h-6 w-6 text-white" />
-          </div>
+          </div>          
         </div>
 
         {/* Main Message */}

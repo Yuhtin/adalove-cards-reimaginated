@@ -252,6 +252,7 @@ export default function DashboardPage() {
         onClose={() => setIsSettingsOpen(false)}
         username={username}
         onUserUpdate={handleUserUpdate}
+        initialSection="profile"
       />
     </div>
   );

@@ -45,9 +45,6 @@ export default function RegisterPage() {
         password: formData.password
       });
 
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('authToken', user.token);
-      
       router.push('/dashboard');
     } catch (error) {
       setError(error.response?.data?.message || 'Erro ao criar conta. Tente novamente.');
