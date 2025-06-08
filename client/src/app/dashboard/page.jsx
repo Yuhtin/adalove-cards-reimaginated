@@ -183,7 +183,7 @@ export default function DashboardPage() {
               Olá, <span className="gradient-text">{username}</span>! 👋
             </h1>
             <p className="text-lg text-muted-foreground">
-              Bem-vindo ao seu painel de autoestudos. Aqui você tem uma visão geral do seu progresso.
+              Se organizar ficou mais fácil! Começe a usar o AdaLove 2.0 para simplificar seus estudos.
             </p>
           </div>
 

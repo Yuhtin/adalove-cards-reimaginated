@@ -1,4 +1,5 @@
-import { User, Calendar, Clock, ExternalLink, BookOpen, Database } from 'lucide-react';
+import { User, Calendar, Clock, ExternalLink, BookOpen } from 'lucide-react';
+import StatusSelector from './StatusSelector';
 
 const ActivityCard = ({ activity, onStatusChange, onActivityClick, index }) => {
   const getStatusConfig = (status) => {
@@ -108,20 +109,12 @@ const ActivityCard = ({ activity, onStatusChange, onActivityClick, index }) => {
           )}
         </div>
 
-        {/* Status Dropdown */}
-        <select
-          value={activity.status}
-          onChange={(e) => {
-            e.stopPropagation();
-            onStatusChange(activity.id, e.target.value);
-          }}
-          onClick={(e) => e.stopPropagation()}
-          className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-ada-red/50 focus:border-ada-red/50 transition-all"
-        >
-          <option value="A fazer">A Fazer</option>
-          <option value="Fazendo">Fazendo</option>
-          <option value="Feito">Feito</option>
-        </select>
+        {/* Status Selector */}
+        <StatusSelector
+          status={activity.status}
+          onStatusChange={onStatusChange}
+          activityId={activity.id}
+        />
       </div>
     </div>
   );

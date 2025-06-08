@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import WeekSelector from '../components/selfstudy/WeekSelector';
+import EmptyWeekSelector from '../components/selfstudy/EmptyWeekSelector';
 import SelfStudyHeader from '../components/selfstudy/SelfStudyHeader';
 import ViewToggle from '../components/selfstudy/ViewToggle';
 import HorizontalFilters from '../components/selfstudy/HorizontalFilters';
@@ -156,20 +157,25 @@ export default function SelfStudyPage() {
 
   const handleStatusChange = async (activityId, newStatus) => {
     try {
-      // Map frontend status to backend status
+      // Map frontend status to backend statusTypeId
       const statusMap = {
-        'A fazer': 'Todo',
-        'Fazendo': 'Doing',
-        'Feito': 'Done'
+        'A fazer': 1,
+        'Fazendo': 2,
+        'Feito': 3
       };
-      
-      const backendStatus = statusMap[newStatus] || newStatus;
-      
-      await studentActivities.updateStatus(activityId, { status: backendStatus });
-      
+
+      const statusTypeId = statusMap[newStatus];
+
+      if (!statusTypeId) {
+        console.error('Invalid status:', newStatus);
+        return;
+      }
+
+      await studentActivities.updateStatus(activityId, statusTypeId);
+
       // Update local state
-      setActivities(prev => prev.map(activity => 
-        activity.id === activityId 
+      setActivities(prev => prev.map(activity =>
+        activity.id === activityId
           ? { ...activity, status: newStatus }
           : activity
       ));
@@ -191,7 +197,7 @@ export default function SelfStudyPage() {
     setFilters({ search: '', status: 'Todos', type: 'Todos', week: '', required: 'Todos' });
   };
 
-  const handleImportSuccess = (result) => {
+  const handleImportSuccess = () => {
     // Refresh activities after successful import
     const fetchActivities = async () => {
       try {
@@ -345,6 +351,8 @@ export default function SelfStudyPage() {
   }
 
   if (showWeekSelector) {
+    const hasWeeks = Object.keys(activitiesByWeek).length > 0;
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <ModernNavbar
@@ -360,12 +368,31 @@ export default function SelfStudyPage() {
             selectedWeek={selectedWeek}
             onBackToWeeks={handleBackToWeeks}
           />
-          
-          <WeekSelector
-            onWeekSelect={handleWeekSelect}
-            activitiesByWeek={activitiesByWeek}
-          />
+
+          {hasWeeks ? (
+            <WeekSelector
+              onWeekSelect={handleWeekSelect}
+              activitiesByWeek={activitiesByWeek}
+            />
+          ) : (
+            <EmptyWeekSelector
+              onImportClick={() => setShowImportModal(true)}
+            />
+          )}
         </div>
+
+        <ImportModal
+          isOpen={showImportModal}
+          onClose={() => setShowImportModal(false)}
+          onImportSuccess={handleImportSuccess}
+        />
+
+        <SettingsModal
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          username={username}
+          onUserUpdate={handleUserUpdate}
+        />
       </div>
     );
   }
