@@ -85,9 +85,6 @@ Estrutura de Diretórios
 - **`models/`**: Modelos da aplicação (definições de dados e interações com o banco de dados).
 - **`routes/`**: Rotas da aplicação.
 - **`scripts/`**: Scripts utilitários, como inicialização do banco de dados.
-- **`services/`**: Camada de serviço para separar lógica de negócio das operações de banco.
-- **`tests/`**: Testes automatizados.
-- **`views/`**: Templates EJS para renderização da interface do usuário.
 
 Modelo de Banco de Dados
 -----------------------
@@ -95,9 +92,11 @@ Modelo de Banco de Dados
 O banco de dados utiliza o PostgreSQL e possui as seguintes entidades principais:
 
 - **Users**: Armazena logins e informações dos usuários
-- **Cards**: Armazena os cartões de atividades da adalove
-- **Activity Types**: Tipos de atividades
-- **Status Types**: Status possíveis para os cartões
+- **Sections**: Armazena seções/turmas do AdaLove
+- **Activities**: Armazena as atividades de cada seção
+- **Student Activities**: Relaciona estudantes com atividades e seus status
+- **Activity Types**: Tipos de atividades (Orientação, Instrução, Autoestudo, Artefatos)
+- **Status Types**: Status possíveis para as atividades (A fazer, Fazendo, Feito)
 
 Para **mais informações** sobre a **modelagem do banco de dados**, consulte o arquivo **WAD**.
 [Clique aqui para ir até o arquivo](https://github.com/Yuhtin/adalove-cards-reimaginated/blob/main/documentos/wad.md#3-projeto-da-aplica%C3%A7%C3%A3o-web)
