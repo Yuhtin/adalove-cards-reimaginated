@@ -1,8 +1,47 @@
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
 const db = require('../config/db');
+
+// Helper function to create folder to week mapping from folders data
+const createFolderToWeekMapping = (foldersData) => {
+  const mapping = {};
+
+  if (!foldersData || !Array.isArray(foldersData)) {
+    return mapping;
+  }
+
+  // Find folders with "Semana XX" pattern
+  foldersData.forEach(folder => {
+    if (folder.caption && folder.caption.match(/^Semana \d+$/)) {
+      // Extract week number from "Semana XX" format
+      const weekMatch = folder.caption.match(/^Semana (\d+)$/);
+      if (weekMatch) {
+        const weekNumber = parseInt(weekMatch[1], 10);
+        mapping[folder.id] = weekNumber;
+      }
+    }
+  });
+
+  return mapping;
+};
+
+// Helper function to filter activities to only include autoestudos from weekly folders
+const filterAutoestudoActivities = (activities, folderToWeekMap) => {
+  if (!activities || !Array.isArray(activities)) {
+    return [];
+  }
+
+  return activities.filter(activity => {
+    // Check if activity is an autoestudo (type 11)
+    const isAutoestudo = parseInt(activity.type) === 11;
+
+    // Check if activity belongs to a "Semana XX" folder
+    const isFromWeeklyFolder = folderToWeekMap.hasOwnProperty(activity.folder);
+
+    return isAutoestudo && isFromWeeklyFolder;
+  });
+};
 
 // Configure multer for file uploads
 const storage = multer.memoryStorage();
@@ -11,7 +50,7 @@ const upload = multer({
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (_, file, cb) => {
     // Check file extension and MIME type
     const allowedExtensions = ['.json'];
     const allowedMimeTypes = ['application/json', 'text/json'];
@@ -131,11 +170,13 @@ const processImportData = async (jobId, data, userId) => {
   try {
     let activities = [];
     let sectionData = null;
+    let foldersData = null;
 
-    // Extract activities and section from official AdaLove 1.0 export
+    // Extract activities, section, and folders from official AdaLove 1.0 export
     if (data.activities && Array.isArray(data.activities)) {
       activities = data.activities;
       sectionData = data.section;
+      foldersData = data.folders;
     } else if (Array.isArray(data)) {
       activities = data;
     } else {
@@ -143,6 +184,14 @@ const processImportData = async (jobId, data, userId) => {
     }
 
     console.log(`Processing ${activities.length} activities for user ${userId}`);
+
+    // Create folder to week mapping
+    const folderToWeekMap = createFolderToWeekMapping(foldersData);
+    console.log('Folder to week mapping:', folderToWeekMap);
+
+    // Filter activities to only include autoestudos from "Semana XX" folders
+    const filteredActivities = filterAutoestudoActivities(activities, folderToWeekMap);
+    console.log(`Filtered to ${filteredActivities.length} autoestudo activities from weekly folders`);
 
     // First, process section data if available
     let sectionId = null;
@@ -152,12 +201,15 @@ const processImportData = async (jobId, data, userId) => {
 
     // Process user activities in chunks
     const chunkSize = 50;
-    for (let i = 0; i < activities.length; i += chunkSize) {
-      const chunk = activities.slice(i, i + chunkSize);
+    for (let i = 0; i < filteredActivities.length; i += chunkSize) {
+      const chunk = filteredActivities.slice(i, i + chunkSize);
 
       for (const activity of chunk) {
+        // Get week number from folder mapping
+        const weekNumber = folderToWeekMap[activity.folder] || 1;
+
         // Process individual user activity from official export
-        await processOfficialActivity(activity, userId, sectionId);
+        await processOfficialActivity(activity, userId, sectionId, weekNumber);
         recordsProcessed++;
 
         // Update progress every 5 records
@@ -250,7 +302,7 @@ const processOfficialSection = async (sectionData) => {
 };
 
 // Process individual activity from official AdaLove 1.0 export
-const processOfficialActivity = async (activity, userId, sectionId = null) => {
+const processOfficialActivity = async (activity, userId, sectionId = null, weekNumber = 1) => {
   // Sanitize all string fields
   const sanitizedActivity = {};
   for (const [key, value] of Object.entries(activity)) {
@@ -305,7 +357,7 @@ const processOfficialActivity = async (activity, userId, sectionId = null) => {
     sanitizedActivity.required === 1 || sanitizedActivity.mandatory === true,
     sanitizedActivity.date ? new Date(sanitizedActivity.date) : new Date(),
     sanitizedActivity.basicActivityURL || null,
-    1, // weekNumber - default
+    weekNumber, // weekNumber from folder mapping
     sanitizedActivity.sort || 0,
     sanitizedActivity.exam || 0,
     sanitizedActivity.makeup_exam || 0,

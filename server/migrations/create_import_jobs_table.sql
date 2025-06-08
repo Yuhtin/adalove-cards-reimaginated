@@ -1,7 +1,8 @@
 -- Create import_jobs table for tracking data import operations
+DROP TABLE IF EXISTS import_jobs CASCADE;
 CREATE TABLE IF NOT EXISTS import_jobs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id VARCHAR NOT NULL,
+    user_id UUID NOT NULL,
     filename VARCHAR(255) NOT NULL,
     file_size BIGINT NOT NULL,
     estimated_records INTEGER NOT NULL DEFAULT 0,

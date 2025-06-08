@@ -15,16 +15,17 @@ const pool = new Pool({
 });
 
 const runSQLScript = async () => {
-  const filePath = path.join(__dirname, 'create_database_structure.sql');
-  const sql = fs.readFileSync(filePath, 'utf8');
-
-  try {
-    await pool.query(sql);
-    console.log('Script SQL executado com sucesso!');
-  } catch (err) {
-    console.error('Erro ao executar o script SQL:', err);
-  } finally {
-    await pool.end();
+  const migrationsPath = path.join(__dirname, '../migrations');
+  const migrationFiles = fs.readdirSync(migrationsPath);
+  for (const file of migrationFiles) {
+    const filePath = path.join(migrationsPath, file);
+    const sql = fs.readFileSync(filePath, 'utf8');
+    try {
+      await pool.query(sql);
+      console.log(`Script SQL ${file} executado com sucesso!`);
+    } catch (err) {
+      console.error(`Erro ao executar o script SQL ${file}:`, err);
+    }
   }
 };
 
