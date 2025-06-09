@@ -10,7 +10,7 @@ Uma aplicação web moderna para gerenciamento de atividades acadêmicas, desenv
 
 O **AdaLove 2.0** é uma reimaginação completa da plataforma original, focada em proporcionar uma experiência superior para gestão de atividades de autoestudo. A aplicação permite que estudantes do Inteli importem dados do AdaLove 1.0 e gerenciem suas atividades através de uma interface moderna e intuitiva.
 
-### ✨ Principais Diferenciais
+### Principais Diferenciais
 
 - **Interface Moderna**: Design glassmorphism com cores da marca AdaLove
 - **Importação de Dados**: Suporte completo para arquivos do AdaLove 1.0
@@ -32,7 +32,7 @@ O **AdaLove 2.0** é uma reimaginação completa da plataforma original, focada 
 - **Node.js** 18.x ou superior (para Next.js 15)
 - **npm** ou **yarn**
 
-## 🚀 Instalação e Configuração
+## Instalação e Configuração
 
 ### 1. Clonar o Repositório
 

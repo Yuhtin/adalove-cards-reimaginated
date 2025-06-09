@@ -5,14 +5,14 @@ echo "🧪 Testando APIs do AdaLove 2..."
 # Registrar usuário
 echo "📝 Registrando usuário..."
 REGISTER_RESPONSE=$(curl -s -X POST -H "Content-Type: application/json" \
-  -d '{"username":"testuser2","password":"testpass"}' \
+  -d '{"username":"testuser2","email":"testuser2@test.com","password":"testpass"}' \
   http://localhost:3000/api/auth/register)
 echo "✅ Registro: $REGISTER_RESPONSE"
 
 # Fazer login
 echo "🔐 Fazendo login..."
 LOGIN_RESPONSE=$(curl -s -X POST -H "Content-Type: application/json" \
-  -d '{"username":"testuser2","password":"testpass"}' \
+  -d '{"email":"testuser2@test.com","password":"testpass"}' \
   http://localhost:3000/api/auth/login)
 echo "✅ Login: $LOGIN_RESPONSE"
 
